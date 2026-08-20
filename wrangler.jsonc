@@ -1,0 +1,9 @@
+{
+  "name": "furion-os",
+  "compatibility_date": "2026-08-20",
+  "assets": {
+    "directory": "./"
+  },
+  "workers_dev": true,
+  "preview_urls": true
+}
