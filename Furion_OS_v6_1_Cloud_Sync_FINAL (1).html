@@ -1,0 +1,2707 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0d0e12">
+    <title>Furion OS</title>
+    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/gk6zCNBV/FAVICON.png">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cyan:#00aeef; --magenta:#ec008c; --yellow:#fff200;
+            --bg:#0d0e12; --surface:#111319; --card:#16181f; --card2:#1c1f28;
+            --border:#282c36; --text:#fff; --muted:#8e94a5;
+            --success:#00e883; --danger:#ff4d67; --warning:#ffc857;
+            --gradient:linear-gradient(90deg,#00aeef,#ec008c,#fff200);
+        }
+        body.light-theme{
+            --bg:#f4f6f9;
+            --surface:#ffffff;
+            --card:#ffffff;
+            --card2:#f0f2f6;
+            --border:#dfe3ea;
+            --text:#151821;
+            --muted:#697080;
+            --success:#009e5f;
+            --danger:#d9364f;
+            --warning:#b77a00;
+        }
+
+        body.light-theme .app-header{
+            background:rgba(255,255,255,.96);
+        }
+        body.light-theme .modern-input,
+        body.light-theme .modern-select{
+            background:#f7f8fb;
+            color:#151821;
+        }
+        body.light-theme .hero-card{
+            background:linear-gradient(135deg,#ffffff,#f0f3f7);
+            box-shadow:0 14px 35px rgba(15,20,30,.08);
+        }
+        body.light-theme .quick-action,
+        body.light-theme .recent-card,
+        body.light-theme .client-card,
+        body.light-theme .budget-card,
+        body.light-theme .item-card,
+        body.light-theme .panel,
+        body.light-theme .review-client,
+        body.light-theme .review-finance,
+        body.light-theme .review-item,
+        body.light-theme .kpi-card{
+            background:var(--card);
+        }
+        body.light-theme .measure-info{
+            background:#f7f8fb;
+        }
+        body.light-theme .bottom-nav{
+            background:#ffffff;
+        }
+        body.light-theme .user-badge{
+            background:#f2f4f7;
+            color:#151821;
+        }
+        body.light-theme .modal-card{
+            background:#ffffff;
+        }
+        body.light-theme .user-row{
+            background:#f7f8fb;
+        }
+        body.light-theme .btn-secondary{
+            background:#eceff4;
+            color:#151821;
+        }
+
+        .theme-toggle{
+            width:38px;height:38px;border-radius:50%;border:1px solid var(--border);
+            background:var(--card);color:var(--text);display:flex;align-items:center;
+            justify-content:center;font-size:16px;margin-right:8px;
+        }
+
+        *{box-sizing:border-box;margin:0;padding:0;font-family:'Montserrat',sans-serif;-webkit-tap-highlight-color:transparent}
+        body{background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:92px;transition:background .2s ease,color .2s ease}
+        button,input,select{font:inherit}
+        button{cursor:pointer}
+        .hidden{display:none!important}
+
+        .app-header{
+            padding:14px 18px;background:rgba(17,19,25,.97);border-bottom:1px solid var(--border);
+            position:sticky;top:0;z-index:100;display:flex;justify-content:flex-end;align-items:center;
+            backdrop-filter:blur(12px)
+        }
+        .user-badge{
+            border:1px solid var(--border);background:#171a22;color:#fff;border-radius:20px;
+            padding:8px 13px;font-size:11px;font-weight:800
+        }
+
+        .app-page{display:none;padding:20px;animation:fade .22s ease}
+        .app-page.active{display:block}
+        @keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+        .page-title{font-size:21px;font-weight:900;margin-bottom:5px}
+        .page-subtitle{font-size:11px;color:var(--muted);line-height:1.45;margin-bottom:18px}
+        .section-title{display:flex;align-items:center;justify-content:space-between;margin:20px 0 11px}
+        .section-title strong{font-size:13px;font-weight:900}
+        .section-title span{font-size:9px;color:var(--muted);font-weight:800;text-transform:uppercase}
+
+        .modern-input,.modern-select{
+            width:100%;padding:12px;border:1px solid var(--border);border-radius:11px;
+            background:#0d0e12;color:#fff;font-size:12px;outline:none
+        }
+        .modern-input:focus,.modern-select:focus{border-color:var(--cyan)}
+        .field-box{display:flex;flex-direction:column}
+        .field-box label{font-size:8px;font-weight:900;color:var(--muted);text-transform:uppercase;margin:0 0 5px 2px}
+        .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+        .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+
+        .btn-primary,.btn-secondary,.btn-danger,.btn-ghost{
+            border:none;border-radius:12px;padding:13px 14px;font-size:10px;font-weight:900;text-transform:uppercase
+        }
+        .btn-primary{background:var(--gradient);color:#08090b}
+        .btn-secondary{background:#20242e;color:#fff;border:1px solid var(--border)}
+        .btn-danger{background:rgba(255,77,103,.12);color:#ff8394;border:1px solid rgba(255,77,103,.3)}
+        .btn-ghost{background:transparent;color:var(--muted);border:1px dashed var(--border)}
+        .btn-wide{width:100%}
+        .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+        /* LOGIN */
+        .login-screen{
+            position:fixed;inset:0;z-index:500;background:
+            radial-gradient(circle at 20% 15%,rgba(0,174,239,.18),transparent 32%),
+            radial-gradient(circle at 85% 85%,rgba(236,0,140,.16),transparent 30%),#0d0e12;
+            display:flex;align-items:center;justify-content:center;padding:22px
+        }
+        .login-card{width:min(100%,390px);background:#14171e;border:1px solid var(--border);border-radius:26px;padding:26px;box-shadow:0 25px 80px rgba(0,0,0,.45)}
+        .login-brand{font-size:29px;font-weight:900;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:5px}
+        .login-card p{font-size:10px;color:var(--muted);line-height:1.55;margin-bottom:20px}
+        .login-stack{display:flex;flex-direction:column;gap:10px}
+        .login-note{font-size:8px!important;margin:12px 0 0!important;color:#666d80!important}
+
+        /* HOME */
+        .home-page{max-width:820px;margin:0 auto}
+        .home-welcome{margin-bottom:16px}
+        .home-eyebrow{font-size:10px;color:var(--muted);font-weight:700;margin-bottom:4px}
+        .home-title{font-size:25px;font-weight:900;letter-spacing:-.6px}
+        .home-title span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .dashboard-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:16px 0 18px}
+        .kpi-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:15px}
+        .kpi-label{font-size:8px;color:var(--muted);font-weight:900;text-transform:uppercase;margin-bottom:8px}
+        .kpi-value{font-size:19px;font-weight:900}
+        .kpi-sub{font-size:8px;color:var(--muted);margin-top:5px}
+        .hero-card{
+            background:linear-gradient(135deg,#171a22,#101218);border:1px solid #2a2f3a;border-radius:23px;
+            padding:20px;position:relative;overflow:hidden;margin-bottom:20px
+        }
+        .hero-card:after{content:"";position:absolute;width:150px;height:150px;border-radius:50%;right:-55px;bottom:-80px;background:linear-gradient(135deg,rgba(0,174,239,.35),rgba(236,0,140,.18))}
+        .hero-label{font-size:9px;color:var(--cyan);font-weight:900;text-transform:uppercase;margin-bottom:8px}
+        .hero-title{font-size:19px;font-weight:900;margin-bottom:6px}
+        .hero-desc{font-size:10px;color:var(--muted);line-height:1.45;max-width:250px;margin-bottom:15px}
+        .hero-card .btn-primary{position:relative;z-index:2}
+        .quick-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+        .quick-action{
+            border:1px solid var(--border);background:var(--card);border-radius:16px;padding:13px 7px;
+            min-height:86px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px
+        }
+        .quick-action:active{transform:scale(.97);border-color:var(--cyan)}
+        .quick-action-icon{font-size:22px}
+        .quick-action-name{font-size:8px;font-weight:900;text-align:center;color:var(--text)}
+        .quick-action{color:var(--text)}
+        .quick-action *{color:inherit}
+        body:not(.light-theme) .quick-action,
+        body:not(.light-theme) .quick-action-name{
+            color:#ffffff !important;
+        }
+        body.light-theme .quick-action,
+        body.light-theme .quick-action-name{
+            color:#151821 !important;
+        }
+        .recent-list{display:flex;flex-direction:column;gap:8px}
+        .recent-card{
+            border:1px solid var(--border);background:var(--card);border-radius:15px;padding:12px;
+            display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center
+        }
+        .recent-name{font-size:10px;font-weight:900;margin-bottom:4px}
+        .recent-meta{font-size:8px;color:var(--muted)}
+        .recent-value{font-size:11px;font-weight:900;color:var(--success)}
+
+        /* CLIENTES */
+        .panel{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px;margin-bottom:14px}
+        .panel-label{display:block;font-size:9px;font-weight:900;color:var(--cyan);text-transform:uppercase;margin-bottom:11px}
+        .form-stack{display:flex;flex-direction:column;gap:10px}
+        .client-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+        .client-card{background:#13151b;border:1px solid var(--border);border-radius:14px;padding:12px;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+        .client-name{font-size:10px;font-weight:900;margin-bottom:3px}
+        .client-meta{font-size:8px;color:var(--muted);line-height:1.4}
+        .mini-btn{border:1px solid var(--border);background:#20232c;color:#fff;border-radius:9px;padding:8px 9px;font-size:8px;font-weight:900}
+
+        /* ORÇAMENTO */
+        .item-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;position:relative;margin-bottom:11px}
+        .tag-cat{font-size:8px;font-weight:900;color:var(--magenta);text-transform:uppercase;display:block;margin-bottom:8px;padding-right:28px}
+        .btn-del-row{position:absolute;right:-7px;top:-7px;width:27px;height:27px;border:none;border-radius:50%;background:var(--danger);color:#fff;font-weight:900}
+        .item-card .modern-select{margin-bottom:7px}
+        .measure-field{display:grid;grid-template-columns:minmax(0,1fr) 69px;gap:5px}
+        .measure-field .modern-select{margin:0;font-size:10px;padding:10px 7px}
+        .measure-info{grid-column:1/-1;background:#101218;border:1px dashed var(--border);border-radius:10px;padding:8px 9px;font-size:8px;color:var(--muted);line-height:1.4}
+        .area-preview{color:var(--cyan);font-weight:900}
+        .item-finance{margin-top:10px;padding-top:9px;border-top:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr;gap:5px}
+        .item-finance div{font-size:8px;color:var(--muted)}
+        .item-finance b{display:block;color:#fff;font-size:11px;margin-top:2px}
+        .item-finance .sale b{color:var(--success)}
+
+        .finance-breakdown{display:flex;flex-direction:column;gap:5px;margin-bottom:8px}
+        .finance-line{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);font-weight:700}
+        .finance-line.profit span:last-child{color:var(--success)}
+        .finance-total-row{display:flex;justify-content:space-between;align-items:flex-end;border-top:1px solid var(--border);padding-top:7px}
+        .finance-total-row label{font-size:9px;font-weight:900}
+        .finance-total-row span{font-size:21px;font-weight:900;color:var(--success)}
+        .summary-card-fixed{position:fixed;left:0;bottom:64px;width:100%;background:#111319;border-top:1px solid var(--border);padding:10px 16px;z-index:90}
+        .summary-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}
+
+        /* RESUMO */
+        .review-client,.review-finance{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:12px}
+        .review-client strong{font-size:12px}
+        .review-client div{font-size:9px;color:var(--muted);margin-top:4px;line-height:1.45}
+        .review-items{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+        .review-item{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px}
+        .review-item-cat{font-size:8px;color:var(--magenta);font-weight:900;margin-bottom:4px}
+        .review-item-name{font-size:10px;font-weight:900}
+        .review-item-meta{font-size:8px;color:var(--muted);line-height:1.45;margin-top:4px}
+        .review-item-value{text-align:right;font-size:12px;color:var(--success);font-weight:900;margin-top:7px}
+        .review-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+        /* GESTÃO */
+        .status-chip{display:inline-flex;padding:5px 8px;border-radius:20px;font-size:7px;font-weight:900;text-transform:uppercase;border:1px solid var(--border)}
+        .status-Rascunho{color:#aeb4c3}.status-Enviado{color:var(--cyan)}.status-Aprovado{color:var(--success)}.status-Recusado{color:#ff7185}
+        .budget-list{display:flex;flex-direction:column;gap:9px}
+        .budget-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:13px}
+        .budget-head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;margin-bottom:8px}
+        .budget-name{font-size:10px;font-weight:900;margin-bottom:4px}
+        .budget-meta{font-size:8px;color:var(--muted);line-height:1.4}
+        .budget-value{font-size:14px;font-weight:900;color:var(--success);margin:8px 0}
+        .budget-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+        .budget-actions button{padding:8px 5px;font-size:7px}
+
+
+
+        /* SUPABASE ONLINE */
+        .cloud-online{color:var(--success)!important}
+        .cloud-offline{color:var(--danger)!important}
+        .profile-admin-controls{
+            display:grid;grid-template-columns:1fr auto auto;gap:6px;align-items:center;margin-top:8px
+        }
+        .profile-admin-controls .modern-select{padding:8px;font-size:9px}
+        .toggle-active{
+            display:flex;align-items:center;gap:5px;font-size:8px;color:var(--muted);white-space:nowrap
+        }
+        .cloud-client-badge{
+            display:inline-flex;align-items:center;gap:4px;margin-top:5px;font-size:7px;
+            color:var(--success);font-weight:800
+        }
+
+        /* RASCUNHO AUTOMÁTICO */
+        .autosave-card{
+            display:none;background:rgba(0,174,239,.08);border:1px solid rgba(0,174,239,.28);
+            border-radius:16px;padding:13px;margin-bottom:16px
+        }
+        .autosave-card.show{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
+        .autosave-title{font-size:10px;font-weight:900;margin-bottom:4px}
+        .autosave-meta{font-size:8px;color:var(--muted);line-height:1.4}
+        .autosave-status{font-size:8px;color:var(--muted);margin:8px 2px 0;text-align:right}
+
+        /* CONFIGURAÇÕES */
+        .settings-fab{
+            width:38px;height:38px;border-radius:50%;border:1px solid var(--border);
+            background:var(--card);color:var(--text);display:flex;align-items:center;
+            justify-content:center;font-size:16px;margin-right:8px
+        }
+        .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+        .catalog-list{display:flex;flex-direction:column;gap:7px;margin-top:10px}
+        .catalog-row{
+            background:var(--card);border:1px solid var(--border);border-radius:13px;padding:10px;
+            display:grid;grid-template-columns:minmax(0,1fr) 92px auto;gap:7px;align-items:center
+        }
+        .catalog-name{font-size:9px;font-weight:900;line-height:1.35}
+        .catalog-meta{font-size:7px;color:var(--muted);margin-top:3px}
+        .catalog-row .modern-input{padding:9px;font-size:10px}
+        .backup-warning{font-size:8px;color:var(--warning);line-height:1.5;margin-top:8px}
+        .permission-note{
+            padding:10px 11px;border-radius:12px;background:rgba(255,200,87,.08);
+            border:1px solid rgba(255,200,87,.22);font-size:8px;color:var(--muted);line-height:1.5
+        }
+        .textarea-input{min-height:86px;resize:vertical}
+        body.light-theme .autosave-card{background:rgba(0,174,239,.06)}
+        @media(max-width:520px){
+            .catalog-row{grid-template-columns:1fr 82px}
+            .catalog-row .catalog-actions{grid-column:1/-1}
+            .settings-grid{grid-template-columns:1fr}
+        }
+
+        /* MODAL USUÁRIO */
+        .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:400;display:flex;align-items:flex-end;justify-content:center}
+        .modal-card{width:min(100%,520px);background:#15171e;border:1px solid var(--border);border-radius:22px 22px 0 0;padding:20px;max-height:88vh;overflow:auto}
+        .modal-title{font-size:16px;font-weight:900;margin-bottom:5px}
+        .modal-sub{font-size:9px;color:var(--muted);line-height:1.45;margin-bottom:15px}
+        .user-list{display:flex;flex-direction:column;gap:7px;margin:10px 0}
+        .user-row{display:flex;align-items:center;justify-content:space-between;background:#101218;border:1px solid var(--border);border-radius:12px;padding:10px}
+        .user-row strong{font-size:9px}.user-row span{font-size:8px;color:var(--muted)}
+
+        .bottom-nav{
+            position:fixed;left:0;bottom:0;width:100%;height:64px;background:#0a0b0e;border-top:1px solid var(--border);
+            display:flex;justify-content:space-around;align-items:center;z-index:100
+        }
+        .nav-link{border:none;background:transparent;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;font-size:8px;font-weight:800}
+        .nav-link.active{color:var(--cyan)}
+        .nav-link-icon{font-size:17px}
+
+        /* IMPRESSÃO */
+        #print-area{display:none}
+        @media print{
+            body *{visibility:hidden}
+            #print-area,#print-area *{visibility:visible}
+            #print-area{display:block!important;position:absolute;left:0;top:0;width:100%;background:#fff!important;color:#000!important;padding:28px;font-size:10px}
+            .p-header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #111;padding-bottom:12px;margin-bottom:16px}
+            .p-logo{font-size:32px;font-weight:900}
+            .p-table{width:100%;border-collapse:collapse;margin-top:16px}
+            .p-table th{padding:7px 4px;text-align:left;border-bottom:1px solid #111;font-size:8px;text-transform:uppercase}
+            .p-table td{padding:8px 4px;border-bottom:1px solid #ddd;vertical-align:top}
+            .p-total-final{font-size:21px;font-weight:900;text-align:right;border-top:2px solid #111;padding-top:8px;margin-top:17px}
+            .p-status{margin-top:8px;text-align:right;font-size:9px}
+        }
+
+        @media(min-width:720px){
+            .quick-actions{grid-template-columns:repeat(6,1fr)}
+            .dashboard-grid{grid-template-columns:repeat(4,1fr)}
+            .app-page{max-width:840px;margin:0 auto}
+            .modal-card{border-radius:22px;margin-bottom:20px}
+        }
+    </style>
+</head>
+<body>
+
+<div id="loginScreen" class="login-screen">
+    <div class="login-card">
+        <div class="login-brand">FURION OS</div>
+        <p id="loginIntro">Acesse sua conta online para carregar seu perfil e clientes da nuvem.</p>
+        <div class="login-stack" id="loginForm">
+            <input id="loginEmail" class="modern-input" type="email" placeholder="E-mail" autocomplete="username">
+            <input id="loginPassword" class="modern-input" type="password" placeholder="Senha" autocomplete="current-password">
+            <button class="btn-primary btn-wide" id="loginButton" onclick="login()">ENTRAR</button>
+        </div>
+        <div id="cloudStatus" class="login-note">☁️ Supabase: aguardando conexão...</div>
+        <p class="login-note">Login, perfis, clientes, catálogo, configurações e orçamentos usam o Supabase. O armazenamento local fica apenas para tema, autosave temporário e migração de versões antigas.</p>
+    </div>
+</div>
+
+<header class="app-header">
+    <button class="settings-fab hidden" id="configBtn" onclick="navTo('page-config')" aria-label="Configurações" title="Configurações">⚙️</button>
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Alternar tema" title="Alternar tema">☀️</button>
+    <button class="user-badge" id="loggedUserBadge" onclick="openUserModal()">👤 Usuário</button>
+</header>
+
+<main>
+    <section class="app-page active home-page" id="page-home">
+        <div class="home-welcome">
+            <div class="home-eyebrow">Painel Furion · v6.1 Cloud</div>
+            <div class="home-title"><span>FURION</span> OS</div>
+        </div>
+
+        <div class="autosave-card" id="autosaveCard">
+            <div>
+                <div class="autosave-title">Rascunho automático encontrado</div>
+                <div class="autosave-meta" id="autosaveMeta">Há alterações não salvas.</div>
+            </div>
+            <button class="mini-btn" onclick="resumeAutosave()">Continuar</button>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Aprovado no mês</div>
+                <div class="kpi-value" id="kpiRevenue">R$ 0</div>
+                <div class="kpi-sub">orçamentos aprovados na nuvem</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Enviados</div>
+                <div class="kpi-value" id="kpiSent">0</div>
+                <div class="kpi-sub">aguardando retorno</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Aprovados</div>
+                <div class="kpi-value" id="kpiApproved">0</div>
+                <div class="kpi-sub">no mês atual</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Rascunhos</div>
+                <div class="kpi-value" id="kpiDrafts">0</div>
+                <div class="kpi-sub">para finalizar</div>
+            </div>
+        </div>
+
+        <div class="hero-card">
+            <div class="hero-label">Novo orçamento</div>
+            <div class="hero-title">Comece um novo projeto</div>
+            <div class="hero-desc">Selecione ou cadastre um cliente e monte uma proposta com serviços de vários setores.</div>
+            <button class="btn-primary" onclick="newBudget()">CRIAR ORÇAMENTO</button>
+        </div>
+
+        <div class="section-title"><strong>Ações rápidas</strong><span>Serviços</span></div>
+        <div class="quick-actions">
+            <button class="quick-action" onclick="newBudget('VISUAL (ADESIVOS/LONAS)')"><span class="quick-action-icon">🎨</span><span class="quick-action-name">Visual</span></button>
+            <button class="quick-action" onclick="newBudget('CHAPAS E RÍGIDOS')"><span class="quick-action-icon">🧱</span><span class="quick-action-name">Chapas</span></button>
+            <button class="quick-action" onclick="newBudget('INSUFILM')"><span class="quick-action-icon">🚗</span><span class="quick-action-name">Insulfilm</span></button>
+            <button class="quick-action" onclick="newBudget('CCTV / SEGURANÇA')"><span class="quick-action-icon">📹</span><span class="quick-action-name">CCTV</span></button>
+            <button class="quick-action" onclick="newBudget('IMPRESSÃO 3D')"><span class="quick-action-icon">🖨️</span><span class="quick-action-name">3D</span></button>
+            <button class="quick-action" onclick="newBudget('T.I / REDES')"><span class="quick-action-icon">💻</span><span class="quick-action-name">T.I.</span></button>
+        </div>
+
+        <div class="section-title"><strong>Orçamentos recentes</strong><span onclick="navTo('page-gestao')" style="cursor:pointer">Ver todos</span></div>
+        <div class="recent-list" id="recentBudgets"></div>
+    </section>
+
+    <section class="app-page" id="page-cliente">
+        <div class="page-title">Cliente</div>
+        <div class="page-subtitle">Selecione um cliente salvo ou cadastre um novo para este orçamento.</div>
+
+        <div class="panel">
+            <span class="panel-label">Dados do cliente</span>
+            <div class="form-stack">
+                <input type="hidden" id="inpClientId">
+                <div class="field-box"><label>Nome / Razão Social</label><input id="inpNome" class="modern-input" placeholder="Ex: João da Silva"></div>
+                <div class="grid-2">
+                    <div class="field-box"><label>CPF / CNPJ</label><input id="inpDoc" class="modern-input" placeholder="Documento"></div>
+                    <div class="field-box"><label>Telefone</label><input id="inpPhone" class="modern-input" placeholder="(44) 99999-9999"></div>
+                </div>
+                <div class="field-box"><label>Endereço completo</label><input id="inpEnd" class="modern-input" placeholder="Rua, número, bairro, cidade"></div>
+                <div class="btn-row">
+                    <button class="btn-secondary" onclick="saveClient()">SALVAR CLIENTE</button>
+                    <button class="btn-primary" onclick="goBudgetFromClient()">IR AO ORÇAMENTO</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title"><strong>Clientes salvos</strong><span id="clientCount">0 clientes</span></div>
+        <input id="clientSearch" class="modern-input" placeholder="Buscar cliente..." oninput="renderClients()">
+        <div class="client-list" id="clientList"></div>
+    </section>
+
+    <section class="app-page" id="page-orcamento">
+        <div class="page-title">Orçamento</div>
+        <div class="page-subtitle" id="budgetContext">Configure custos, medidas e serviços.</div>
+
+        <div class="panel">
+            <span class="panel-label">Identificação</span>
+            <div class="grid-2" style="margin-bottom:8px">
+                <div class="field-box"><label>Título / referência</label><input id="budgetTitle" class="modern-input" placeholder="Ex: Fachada Loja Centro"></div>
+                <div class="field-box"><label>Status</label>
+                    <select id="budgetStatus" class="modern-select">
+                        <option>Rascunho</option><option>Enviado</option><option>Aprovado</option><option>Recusado</option>
+                    </select>
+                </div>
+            </div>
+            <div class="field-box"><label>Responsável / atribuído para</label><select id="budgetAssigned" class="modern-select"></select></div>
+            <div class="autosave-status" id="autosaveStatus">Autosave pronto</div>
+        </div>
+
+        <div class="panel">
+            <span class="panel-label">Condições da proposta</span>
+            <div class="grid-2" style="margin-bottom:8px">
+                <div class="field-box"><label>Validade (dias)</label><input type="number" id="proposalValidity" class="modern-input" value="15"></div>
+                <div class="field-box"><label>Prazo de execução</label><input id="proposalExecution" class="modern-input" placeholder="Ex: 5 dias úteis"></div>
+            </div>
+            <div class="field-box" style="margin-bottom:8px"><label>Forma / condição de pagamento</label><input id="proposalPayment" class="modern-input" placeholder="Ex: 50% entrada + 50% entrega"></div>
+            <div class="field-box"><label>Observações</label><textarea id="proposalNotes" class="modern-input textarea-input" placeholder="Garantia, instalação, detalhes adicionais..."></textarea></div>
+        </div>
+
+        <div class="panel">
+            <span class="panel-label">Cálculo & logística</span>
+            <div class="grid-2" style="margin-bottom:8px">
+                <div class="field-box"><label>Lucro / markup %</label><input type="number" id="lucro" class="modern-input" value="100" oninput="calc()"></div>
+                <div class="field-box"><label>Desconto %</label><input type="number" id="desc" class="modern-input" value="0" oninput="calc()"></div>
+            </div>
+            <div class="grid-2" style="margin-bottom:8px">
+                <div class="field-box"><label>Veículo</label>
+                    <select id="veiculo" class="modern-select" onchange="calcDeslocamento()"><option value="10">HB20 1.6 (10 km/L)</option><option value="13">Celta 1.0 (13 km/L)</option></select>
+                </div>
+                <div class="field-box"><label>Distância ida/volta km</label><input type="number" id="distanciaKm" class="modern-input" value="0" oninput="calcDeslocamento()"></div>
+            </div>
+            <div class="grid-2">
+                <div class="field-box"><label>Deslocamento R$</label><input type="number" id="deslocamento" class="modern-input" value="0" oninput="calc()"></div>
+                <div class="field-box"><label>Mão de obra R$</label><input type="number" id="mao-obra" class="modern-input" value="100" oninput="calc()"></div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <span class="panel-label">Adicionar serviço de outro setor</span>
+            <div class="grid-2">
+                <select id="novaCategoria" class="modern-select">
+                    <option value="VISUAL (ADESIVOS/LONAS)">Visual / Adesivos / Lonas</option>
+                    <option value="CHAPAS E RÍGIDOS">Chapas e Rígidos</option>
+                    <option value="INSUFILM">Insulfilm</option>
+                    <option value="CCTV / SEGURANÇA">CCTV / Segurança</option>
+                    <option value="IMPRESSÃO 3D">Impressão 3D</option>
+                    <option value="T.I / REDES">T.I / Redes</option>
+                    <option value="ROUTER / LASER">Router / Laser</option>
+                </select>
+                <button class="btn-primary" onclick="addServiceFromSector()">+ ADICIONAR</button>
+            </div>
+        </div>
+
+        <div id="itens"></div>
+        <button class="btn-ghost btn-wide" onclick="addRow(activeCat)">+ ADICIONAR OUTRO ITEM DO SETOR ATUAL</button>
+        <div style="height:155px"></div>
+    </section>
+
+    <section class="app-page" id="page-resumo">
+        <div class="page-title">Revisar orçamento</div>
+        <div class="page-subtitle">Confira os dados antes de salvar, enviar ou gerar a proposta.</div>
+        <div id="reviewClient" class="review-client"></div>
+        <div id="reviewItems" class="review-items"></div>
+        <div id="reviewFinance" class="review-finance"></div>
+        <div class="review-actions">
+            <button class="btn-secondary" onclick="navTo('page-orcamento')">EDITAR</button>
+            <button class="btn-primary" onclick="saveBudget(true)">SALVAR</button>
+            <button class="btn-secondary" onclick="markAndSave('Enviado')">MARCAR ENVIADO</button>
+            <button class="btn-primary" onclick="gerarPDF()">GERAR PROPOSTA</button>
+        </div>
+    </section>
+
+    <section class="app-page" id="page-gestao">
+        <div class="page-title">Gestão</div>
+        <div class="page-subtitle">Histórico de orçamentos, status e valores salvos neste navegador.</div>
+        <div class="grid-2" style="margin-bottom:10px">
+            <select id="budgetFilter" class="modern-select" onchange="renderBudgetList()">
+                <option value="">Todos os status</option><option>Rascunho</option><option>Enviado</option><option>Aprovado</option><option>Recusado</option>
+            </select>
+            <input id="budgetSearch" class="modern-input" placeholder="Buscar..." oninput="renderBudgetList()">
+        </div>
+        <div class="budget-list" id="budgetList"></div>
+    </section>
+
+    <section class="app-page" id="page-config">
+        <div class="page-title">Configurações</div>
+        <div class="page-subtitle">Parâmetros, catálogo, dados online e migração. Alterações são sincronizadas pelo Supabase.</div>
+
+        <div class="panel">
+            <span class="panel-label">Dados da empresa</span>
+            <div class="form-stack">
+                <div class="field-box"><label>Nome da empresa</label><input id="cfgCompanyName" class="modern-input"></div>
+                <div class="grid-2">
+                    <div class="field-box"><label>CNPJ / documento</label><input id="cfgCompanyDoc" class="modern-input"></div>
+                    <div class="field-box"><label>Telefone</label><input id="cfgCompanyPhone" class="modern-input"></div>
+                </div>
+                <div class="field-box"><label>Endereço</label><input id="cfgCompanyAddress" class="modern-input"></div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <span class="panel-label">Padrões de cálculo</span>
+            <div class="settings-grid">
+                <div class="field-box"><label>Gasolina R$/L</label><input type="number" step="0.01" id="cfgGasPrice" class="modern-input"></div>
+                <div class="field-box"><label>Hora máquina 3D R$</label><input type="number" step="0.01" id="cfgMachineHour" class="modern-input"></div>
+                <div class="field-box"><label>Markup padrão %</label><input type="number" step="0.01" id="cfgMarkup" class="modern-input"></div>
+                <div class="field-box"><label>Mão de obra padrão R$</label><input type="number" step="0.01" id="cfgLabor" class="modern-input"></div>
+                <div class="field-box"><label>Desconto padrão %</label><input type="number" step="0.01" id="cfgDiscount" class="modern-input"></div>
+                <div class="field-box"><label>Validade padrão (dias)</label><input type="number" id="cfgValidity" class="modern-input"></div>
+            </div>
+            <div class="field-box" style="margin-top:8px"><label>Pagamento padrão</label><input id="cfgPayment" class="modern-input"></div>
+            <div class="field-box" style="margin-top:8px"><label>Prazo padrão</label><input id="cfgExecution" class="modern-input"></div>
+            <button class="btn-primary btn-wide" style="margin-top:10px" onclick="saveSettings()">SALVAR CONFIGURAÇÕES</button>
+        </div>
+
+        <div class="panel">
+            <span class="panel-label">Catálogo de preços</span>
+            <div class="field-box"><label>Setor</label><select id="catalogSector" class="modern-select" onchange="renderCatalog()"></select></div>
+            <div class="catalog-list" id="catalogList"></div>
+            <div class="section-title"><strong>Adicionar item</strong><span>Catálogo</span></div>
+            <div class="form-stack">
+                <input id="catalogGroup" class="modern-input" placeholder="Grupo existente ou novo grupo">
+                <input id="catalogItem" class="modern-input" placeholder="Nome do item / material">
+                <div class="grid-2">
+                    <input type="number" step="0.01" id="catalogPrice" class="modern-input" placeholder="Custo base R$">
+                    <select id="catalogUnit" class="modern-select">
+                        <option value="un">unidade</option>
+                        <option value="m2">m²</option>
+                        <option value="m">metro</option>
+                        <option value="g">grama</option>
+                        <option value="ml">ml</option>
+                    </select>
+                </div>
+                <button class="btn-primary btn-wide" onclick="addCatalogItem()">ADICIONAR AO CATÁLOGO ONLINE</button>
+                <button class="btn-ghost btn-wide" onclick="resetCatalog()">RECARREGAR CATÁLOGO DA NUVEM</button>
+            </div>
+        </div>
+
+        <div class="panel">
+            <span class="panel-label">Backup e restauração</span>
+            <div class="btn-row">
+                <button class="btn-secondary" onclick="exportBackup()">EXPORTAR CÓPIA ONLINE</button>
+                <button class="btn-primary" onclick="document.getElementById('backupFile').click()">IMPORTAR ARQUIVO LEGADO</button>
+            </div>
+            <input id="backupFile" type="file" accept=".json,application/json" class="hidden" onchange="importBackup(this)">
+            <div class="backup-warning">Exporta uma cópia legível dos dados online para conferência/arquivo. O Supabase continua sendo a fonte principal dos dados.</div>
+        </div>
+
+
+        <div class="panel">
+            <span class="panel-label">Migração para a nuvem</span>
+            <div class="permission-note" style="margin-bottom:10px">
+                Se este navegador ainda tiver dados das versões locais anteriores, o Admin pode enviá-los ao Supabase. 
+                O processo tenta evitar clientes duplicados e cria novos números para os orçamentos migrados.
+            </div>
+            <button class="btn-primary btn-wide" id="migrationButton" onclick="migrateLegacyData()">MIGRAR DADOS LOCAIS DESTE DISPOSITIVO</button>
+            <div class="autosave-status" id="migrationStatus"></div>
+        </div>
+
+        <div class="permission-note">
+            <strong>Permissões:</strong> Administrador gerencia tudo; Vendedor cria clientes e orçamentos; o perfil Técnico será usado principalmente no módulo de Ordens de Serviço, que será conectado na próxima etapa.
+        </div>
+    </section>
+</main>
+
+<div class="summary-card-fixed hidden" id="summaryFooter">
+    <div class="finance-breakdown">
+        <div class="finance-line"><span>Custo total</span><span id="labelCost">R$ 0,00</span></div>
+        <div class="finance-line profit"><span>Lucro estimado</span><span id="labelProfit">R$ 0,00</span></div>
+        <div class="finance-line"><span>Desconto</span><span id="labelDiscount">R$ 0,00</span></div>
+        <div class="finance-total-row"><label>TOTAL CLIENTE</label><span id="totalFinal">R$ 0,00</span></div>
+    </div>
+    <div class="summary-actions">
+        <button class="btn-secondary" onclick="saveBudget(false)">SALVAR RASCUNHO</button>
+        <button class="btn-primary" onclick="openReview()">REVISAR</button>
+    </div>
+</div>
+
+<nav class="bottom-nav">
+    <button class="nav-link active" id="nav-home" onclick="navTo('page-home')"><span class="nav-link-icon">🏠</span><span>Início</span></button>
+    <button class="nav-link" id="nav-cliente" onclick="navTo('page-cliente')"><span class="nav-link-icon">👤</span><span>Cliente</span></button>
+    <button class="nav-link" id="nav-orcamento" onclick="navTo('page-orcamento')"><span class="nav-link-icon">📋</span><span>Orçamento</span></button>
+    <button class="nav-link" id="nav-gestao" onclick="navTo('page-gestao')"><span class="nav-link-icon">📊</span><span>Gestão</span></button>
+</nav>
+
+<div id="userModal" class="modal-backdrop hidden" onclick="closeUserModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+        <div class="modal-title">Usuários online</div>
+        <div class="modal-sub">Perfis sincronizados com o Supabase. Para criar uma nova conta, use Authentication → Users no painel do Supabase. Depois, o Admin pode definir função e ativação aqui.</div>
+        <div class="user-list" id="userList"></div>
+        <div id="adminUserCreator" class="panel hidden">
+            <span class="panel-label">Administração</span>
+            <div class="permission-note">
+                Novos usuários devem ser criados em <strong>Supabase → Authentication → Users</strong>. 
+                Assim que a conta for criada, ela aparece aqui automaticamente pelo trigger que configuramos no banco.
+            </div>
+        </div>
+        <div class="btn-row">
+            <button class="btn-secondary" onclick="document.getElementById('userModal').classList.add('hidden')">FECHAR</button>
+            <button class="btn-danger" onclick="logout()">SAIR</button>
+        </div>
+    </div>
+</div>
+
+<div id="print-area">
+    <div class="p-header">
+        <div class="p-logo">FURION</div>
+        <div style="text-align:right"><strong>FURION COMUNICAÇÃO VISUAL & TECNOLOGIA</strong><br><span id="pdf-company-extra"></span><br>Data: <span id="pdf-data"></span></div>
+    </div>
+    <div>
+        <strong>Cliente:</strong> <span id="pdf-cliente"></span><br>
+        <strong>Documento:</strong> <span id="pdf-doc-val"></span><br>
+        <strong>Telefone:</strong> <span id="pdf-phone"></span><br>
+        <strong>Endereço:</strong> <span id="pdf-endereco"></span>
+    </div>
+    <table class="p-table">
+        <thead><tr><th>Descrição</th><th>Medida / detalhe</th><th style="text-align:center">Qtd</th><th style="text-align:right">Total</th></tr></thead>
+        <tbody id="pdf-body"></tbody>
+    </table>
+    <div class="p-total-final">Total: <span id="pdf-total"></span></div>
+    <div style="margin-top:16px;line-height:1.65">
+        <strong>Validade:</strong> <span id="pdf-validity"></span><br>
+        <strong>Pagamento:</strong> <span id="pdf-payment"></span><br>
+        <strong>Prazo de execução:</strong> <span id="pdf-execution"></span><br>
+        <strong>Responsável:</strong> <span id="pdf-owner"></span><br>
+        <strong>Observações:</strong> <span id="pdf-notes"></span>
+    </div>
+    <div class="p-status">Orçamento: <span id="pdf-status"></span></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const DEFAULT_MASTER_DATA = {
+    "VISUAL (ADESIVOS/LONAS)": {
+        "VINIL ADESIVO":{"Brilho":45,"Fosco":45,"Jateado":75,"Perfurado":75,"Transparente":70,"Refletivo":185},
+        "DECORATIVO":{"Amadeirado":125,"Marmorizado":125,"Carbono":175,"Lousa":85},
+        "LONAS/TECIDOS":{"Lona 280g":28,"Lona 440g":48,"Lona 500g":95,"Canvas":185}
+    },
+    "CHAPAS E RÍGIDOS": {
+        "PVC EXPANDIDO":{"1mm":55,"2mm":75,"3mm":95,"5mm":140,"10mm":265},
+        "ACM":{"3mm Cores":330,"3mm Escovado":410,"3mm Espelhado":580,"4mm":480},
+        "ACRÍLICO":{"2mm":385,"3mm":465,"5mm":620,"Espelhado Prata":590}
+    },
+    "INSUFILM": {
+        "AUTOMOTIVO":{"G5 / G20 Padrão":85,"G5 / G20 Premium":130,"Nanocerâmica Térmico":280,"Parabrisa Térmico":350},
+        "RESIDENCIAL / PREDIAL":{"Espelhado Prata":95,"Espelhado Ouro":120,"Fumê G5/G20":75,"Jateado":85,"Segurança PS4":160}
+    },
+    "CCTV / SEGURANÇA": {
+        "CÂMERAS":{"Analog. 1080p":185,"IP 2MP":455,"IP PTZ":3800},
+        "GRAVAÇÃO":{"DVR 4ch":495,"DVR 8ch":680,"HD 1TB":380},
+        "INFRA":{"Cabo Coaxial (m)":4.50,"Cabo Rede CAT5 (m)":5.80}
+    },
+    "IMPRESSÃO 3D": {
+        "FILAMENTOS":{"PLA Premium (g)":0.45,"ABS Industrial (g)":0.40},
+        "RESINAS":{"Standard (ml)":0.95}
+    },
+    "T.I / REDES": {
+        "HARDWARE":{"SSD 480GB":395,"SSD 1TB":650},
+        "NETWORK":{"Switch 8p Giga":185,"Roteador AX3000":650}
+    },
+    "ROUTER / LASER":{"SERVIÇOS":{"Corte PVC 10mm":310,"Corte ACM":365}}
+};
+
+const STORAGE = {
+    USERS:'furion_users_v3', // legado local: não usado na v6 online
+    SESSION:'furion_session_v3', // legado local: não usado na v6 online
+    CLIENTS:'furion_clients_v3', // legado local: não usado na v6 online
+    BUDGETS:'furion_budgets_v3', // legado/migração; orçamentos ativos agora ficam no Supabase
+    THEME:'furion_theme_v3',
+    CONFIG:'furion_config_v5', // legado/migração; configuração ativa agora fica no Supabase
+    CATALOG:'furion_catalog_v5', // legado/migração; catálogo ativo agora fica no Supabase
+    AUTOSAVE:'furion_autosave_v5'
+};
+
+const DEFAULT_CONFIG = {
+    companyName:'FURION COMUNICAÇÃO VISUAL & TECNOLOGIA',
+    companyDoc:'',
+    companyPhone:'',
+    companyAddress:'',
+    gasPrice:5.89,
+    machineHour:15,
+    defaultMarkup:100,
+    defaultLabor:100,
+    defaultDiscount:0,
+    defaultValidity:15,
+    defaultPayment:'50% na aprovação e 50% na entrega',
+    defaultExecution:'A combinar'
+};
+
+let masterData = null;
+let appConfig = {...DEFAULT_CONFIG};
+let activeCat = 'VISUAL (ADESIVOS/LONAS)';
+let currentBudgetId = null;
+let currentUser = null;
+let autosaveTimer = null;
+let suspendAutosave = false;
+let lastCalc = {itemCost:0,totalCost:0,subtotal:0,discount:0,final:0,profit:0};
+
+const money = n => Number(n||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const num = v => parseFloat(v)||0;
+const uid = prefix => `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
+const getStore = (key, fallback=[]) => {
+    try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch(e){ return fallback; }
+};
+const setStore = (key, value) => localStorage.setItem(key, JSON.stringify(value));
+const escapeHtml = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+
+const SUPABASE_URL = 'https://ethstfcebocyphnmuusl.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_UlBZ5vH6GokokrQRZBVpGg__nw6ktUa';
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY,
+    {
+        auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true
+        }
+    }
+);
+
+let onlineProfiles = [];
+let onlineClients = [];
+let onlineBudgets = [];
+let catalogRefs = {};
+let onlineSettingsLoaded = false;
+
+
+document.addEventListener('DOMContentLoaded', boot);
+
+async function boot(){
+    applySavedTheme();
+
+    // Fallback temporário até a sessão ser validada; após o login os dados online substituem estes valores.
+    masterData = getStore(STORAGE.CATALOG, JSON.parse(JSON.stringify(DEFAULT_MASTER_DATA)));
+    appConfig = {...DEFAULT_CONFIG, ...getStore(STORAGE.CONFIG,{})};
+
+    loadConfigForm();
+    document.getElementById('lucro').value=appConfig.defaultMarkup;
+    document.getElementById('desc').value=appConfig.defaultDiscount;
+    document.getElementById('mao-obra').value=appConfig.defaultLabor;
+    document.getElementById('proposalValidity').value=appConfig.defaultValidity;
+    document.getElementById('proposalPayment').value=appConfig.defaultPayment;
+    document.getElementById('proposalExecution').value=appConfig.defaultExecution;
+    renderCatalogSectorOptions();
+    updateAutosaveBanner();
+    calc();
+
+    setCloudStatus('Conectando ao Supabase...', null);
+
+    try{
+        const { data, error } = await supabaseClient.auth.getSession();
+        if(error) throw error;
+
+        if(data?.session?.user){
+            await authenticateSessionUser(data.session.user);
+        }else{
+            showLogin();
+            setCloudStatus('Supabase conectado. Faça login.', true);
+        }
+    }catch(error){
+        console.error(error);
+        showLogin();
+        setCloudStatus('Falha ao conectar ao Supabase.', false);
+    }
+
+    supabaseClient.auth.onAuthStateChange(async (event, session) => {
+        if(event === 'SIGNED_OUT'){
+            currentUser = null;
+            onlineProfiles = [];
+            onlineClients = [];
+            onlineBudgets = [];
+            catalogRefs = {};
+            showLogin();
+        }
+    });
+
+    document.addEventListener('input', e => {
+        if(e.target.closest('#page-orcamento') || e.target.closest('#page-cliente')) scheduleAutosave();
+    });
+    document.addEventListener('change', e => {
+        if(e.target.closest('#page-orcamento') || e.target.closest('#page-cliente')) scheduleAutosave();
+    });
+}
+
+function applySavedTheme(){
+    const saved = localStorage.getItem(STORAGE.THEME) || 'dark';
+    document.body.classList.toggle('light-theme', saved === 'light');
+    updateThemeButton(saved);
+}
+
+function toggleTheme(){
+    const isLight = document.body.classList.toggle('light-theme');
+    const theme = isLight ? 'light' : 'dark';
+    localStorage.setItem(STORAGE.THEME, theme);
+    updateThemeButton(theme);
+}
+
+function updateThemeButton(theme){
+    const btn = document.getElementById('themeToggle');
+    if(!btn) return;
+    btn.textContent = theme === 'light' ? '🌙' : '☀️';
+    btn.title = theme === 'light' ? 'Usar modo escuro' : 'Usar modo claro';
+    btn.setAttribute('aria-label', btn.title);
+}
+
+function setCloudStatus(message, ok=null){
+    const el=document.getElementById('cloudStatus');
+    if(!el)return;
+    el.textContent = `☁️ ${message}`;
+    el.classList.toggle('cloud-online', ok === true);
+    el.classList.toggle('cloud-offline', ok === false);
+}
+
+function showLogin(){
+    document.getElementById('loginScreen').classList.remove('hidden');
+    document.getElementById('loginButton').disabled=false;
+    document.getElementById('loginButton').textContent='ENTRAR';
+}
+
+async function login(){
+    const email=document.getElementById('loginEmail').value.trim().toLowerCase();
+    const password=document.getElementById('loginPassword').value;
+    if(!email || !password) return alert('Informe e-mail e senha.');
+
+    const btn=document.getElementById('loginButton');
+    btn.disabled=true;
+    btn.textContent='ENTRANDO...';
+    setCloudStatus('Autenticando...', null);
+
+    try{
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if(error) throw error;
+        if(!data?.user) throw new Error('Usuário não retornado pelo Supabase.');
+
+        await authenticateSessionUser(data.user);
+        document.getElementById('loginPassword').value='';
+    }catch(error){
+        console.error(error);
+        setCloudStatus('Não foi possível entrar.', false);
+        alert('Não foi possível entrar. Confira e-mail, senha e se o usuário está ativo.');
+        btn.disabled=false;
+        btn.textContent='ENTRAR';
+    }
+}
+
+async function authenticateSessionUser(authUser){
+    const { data: profile, error } = await supabaseClient
+        .from('profiles')
+        .select('id, full_name, username, email, role, active, created_at, updated_at')
+        .eq('id', authUser.id)
+        .single();
+
+    if(error){
+        console.error(error);
+        await supabaseClient.auth.signOut();
+        throw new Error('Perfil não encontrado no banco.');
+    }
+
+    if(!profile.active){
+        await supabaseClient.auth.signOut();
+        showLogin();
+        setCloudStatus('Conta criada, mas ainda está inativa.', false);
+        alert('Seu usuário existe, mas ainda não foi ativado por um administrador.');
+        return;
+    }
+
+    currentUser = {
+        id: profile.id,
+        name: profile.full_name || authUser.email?.split('@')[0] || 'Usuário',
+        username: profile.username || '',
+        email: profile.email || authUser.email || '',
+        role: profile.role,
+        active: profile.active
+    };
+
+    await loadOnlineProfiles();
+    await loadOnlineClients();
+
+    if(['admin','vendedor'].includes(currentUser.role)){
+        await loadOnlineSettings();
+        await loadOnlineCatalog();
+        await loadOnlineBudgets();
+    }
+
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('loggedUserBadge').textContent = `👤 ${currentUser.name}`;
+
+    applyPermissions();
+    refreshAssignedUsers();
+    renderClients();
+    renderBudgetList(false);
+    updateDashboard(false);
+    updateAutosaveBanner();
+    setCloudStatus('Online e sincronizado.', true);
+}
+
+
+function canEditBudgets(){
+    return currentUser && currentUser.active && ['admin','vendedor'].includes(currentUser.role);
+}
+function canManageSettings(){
+    return currentUser?.role === 'admin';
+}
+function visibleBudgetsForUser(budgets){
+    if(currentUser?.role === 'tecnico') return [];
+    return budgets;
+}
+function applyPermissions(){
+    const isTech = currentUser?.role === 'tecnico';
+    document.getElementById('configBtn')?.classList.toggle('hidden', !canManageSettings());
+    document.getElementById('nav-cliente')?.classList.toggle('hidden', isTech);
+    document.getElementById('nav-orcamento')?.classList.toggle('hidden', isTech);
+    if(isTech) navTo('page-gestao');
+}
+function refreshAssignedUsers(selected=''){
+    const sel=document.getElementById('budgetAssigned');
+    if(!sel)return;
+
+    const old=selected || sel.value || currentUser?.id || '';
+    const users=onlineProfiles.filter(u=>u.active);
+
+    sel.innerHTML='<option value="">Não atribuído</option>'+users
+        .map(u=>`<option value="${u.id}">${escapeHtml(u.name)} · ${escapeHtml(u.role)}</option>`)
+        .join('');
+
+    if([...sel.options].some(o=>o.value===old)) sel.value=old;
+}
+
+async function logout(){
+    try{ await supabaseClient.auth.signOut(); }catch(e){ console.error(e); }
+    currentUser = null;
+    onlineProfiles = [];
+    onlineClients = [];
+    onlineBudgets = [];
+    catalogRefs = {};
+    document.getElementById('userModal').classList.add('hidden');
+    document.getElementById('loggedUserBadge').textContent='👤 Usuário';
+    showLogin();
+    setCloudStatus('Sessão encerrada.', true);
+}
+
+async function openUserModal(){
+    await loadOnlineProfiles();
+    renderUsers();
+    document.getElementById('userModal').classList.remove('hidden');
+}
+function closeUserModal(e){
+    if(e.target.id === 'userModal') document.getElementById('userModal').classList.add('hidden');
+}
+
+async function loadOnlineProfiles(){
+    if(!currentUser) return [];
+    const { data, error } = await supabaseClient
+        .from('profiles')
+        .select('id, full_name, username, email, role, active, created_at')
+        .order('full_name', { ascending:true });
+
+    if(error){
+        console.error('profiles:',error);
+        return onlineProfiles;
+    }
+
+    onlineProfiles=(data||[]).map(p=>({
+        id:p.id,
+        name:p.full_name||p.email||'Usuário',
+        username:p.username||'',
+        email:p.email||'',
+        role:p.role,
+        active:p.active,
+        createdAt:p.created_at
+    }));
+    refreshAssignedUsers();
+    return onlineProfiles;
+}
+
+function renderUsers(){
+    const box=document.getElementById('userList');
+    box.innerHTML=onlineProfiles.length?onlineProfiles.map(u=>{
+        const isSelf=u.id===currentUser?.id;
+        const adminControls=currentUser?.role==='admin' && !isSelf ? `
+            <div class="profile-admin-controls">
+                <select class="modern-select profile-role">
+                    <option value="admin" ${u.role==='admin'?'selected':''}>Administrador</option>
+                    <option value="vendedor" ${u.role==='vendedor'?'selected':''}>Vendedor</option>
+                    <option value="tecnico" ${u.role==='tecnico'?'selected':''}>Técnico</option>
+                </select>
+                <label class="toggle-active"><input type="checkbox" class="profile-active" ${u.active?'checked':''}> Ativo</label>
+                <button class="mini-btn" onclick="saveOnlineProfile('${u.id}',this)">Salvar</button>
+            </div>` : '';
+
+        return `
+        <div class="user-row" style="display:block">
+            <div style="display:flex;justify-content:space-between;gap:10px">
+                <div>
+                    <strong>${escapeHtml(u.name)}</strong><br>
+                    <span>${escapeHtml(u.email||'Sem e-mail')} · ${escapeHtml(u.role)}</span>
+                </div>
+                <span>${u.active?'🟢':'🔴'}</span>
+            </div>
+            ${adminControls}
+        </div>`;
+    }).join(''):'<div class="recent-meta">Nenhum perfil encontrado.</div>';
+
+    document.getElementById('adminUserCreator').classList.toggle('hidden', currentUser?.role !== 'admin');
+}
+
+async function saveOnlineProfile(id,button){
+    if(currentUser?.role!=='admin')return;
+
+    const row=button.closest('.user-row');
+    const role=row.querySelector('.profile-role').value;
+    const active=row.querySelector('.profile-active').checked;
+
+    button.disabled=true;
+    button.textContent='...';
+
+    const { error } = await supabaseClient
+        .from('profiles')
+        .update({ role, active })
+        .eq('id',id);
+
+    button.disabled=false;
+    button.textContent='Salvar';
+
+    if(error){
+        console.error(error);
+        return alert('Não foi possível atualizar o perfil.');
+    }
+
+    await loadOnlineProfiles();
+    renderUsers();
+    alert('Perfil atualizado.');
+}
+
+// Criação/exclusão de contas Auth não é feita diretamente no navegador.
+// Nesta fase, crie usuários em Supabase → Authentication → Users.
+function addUser(){
+    alert('Crie a conta em Supabase → Authentication → Users. O perfil aparecerá aqui automaticamente.');
+}
+function deleteUser(){
+    alert('Para remover definitivamente uma conta Auth, use o painel do Supabase. Aqui você pode desativar o perfil.');
+}
+
+
+function navTo(pageId){
+    if(pageId==='page-config' && !canManageSettings()) return alert('Apenas administradores podem acessar as configurações.');
+    if(currentUser?.role==='tecnico' && ['page-cliente','page-orcamento'].includes(pageId)) pageId='page-gestao';
+
+    document.querySelectorAll('.app-page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.nav-link').forEach(n=>n.classList.remove('active'));
+    document.getElementById(pageId)?.classList.add('active');
+
+    const map={'page-home':'nav-home','page-cliente':'nav-cliente','page-orcamento':'nav-orcamento','page-gestao':'nav-gestao'};
+    if(map[pageId]) document.getElementById(map[pageId])?.classList.add('active');
+
+    document.getElementById('summaryFooter').classList.toggle('hidden', pageId !== 'page-orcamento');
+    if(pageId==='page-home') updateDashboard(true);
+    if(pageId==='page-cliente') renderClients().catch(console.error);
+    if(pageId==='page-gestao') renderBudgetList(true);
+    if(pageId==='page-config'){
+        loadOnlineSettings().then(()=>loadConfigForm()).catch(console.error);
+        loadOnlineCatalog().then(()=>{ renderCatalogSectorOptions(); renderCatalog(); }).catch(console.error);
+        updateMigrationStatus();
+    }
+    window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function newBudget(category=null){
+    if(!canEditBudgets()) return alert('Seu perfil é somente de consulta.');
+    clearAutosave();
+    currentBudgetId = null;
+    document.getElementById('budgetTitle').value='';
+    document.getElementById('budgetStatus').value='Rascunho';
+    document.getElementById('lucro').value=appConfig.defaultMarkup;
+    document.getElementById('desc').value=appConfig.defaultDiscount;
+    document.getElementById('distanciaKm').value=0;
+    document.getElementById('deslocamento').value=0;
+    document.getElementById('mao-obra').value=appConfig.defaultLabor;
+    document.getElementById('proposalValidity').value=appConfig.defaultValidity;
+    document.getElementById('proposalPayment').value=appConfig.defaultPayment;
+    document.getElementById('proposalExecution').value=appConfig.defaultExecution;
+    document.getElementById('proposalNotes').value='';
+    refreshAssignedUsers(currentUser?.id||'');
+    document.getElementById('itens').innerHTML='';
+    clearClientForm();
+
+    if(category){
+        activeCat = category;
+        document.getElementById('novaCategoria').value = category;
+        addRow(category);
+        navTo('page-orcamento');
+        updateBudgetContext();
+    }else{
+        navTo('page-cliente');
+    }
+    calc();
+}
+
+async function loadOnlineClients(){
+    if(!currentUser) return [];
+    const { data, error } = await supabaseClient
+        .from('clients')
+        .select('id, name, document, phone, email, address, notes, created_by, created_at, updated_at')
+        .order('updated_at', { ascending:false });
+
+    if(error){
+        console.error('clients:',error);
+        setCloudStatus('Erro ao carregar clientes.', false);
+        return onlineClients;
+    }
+
+    onlineClients=(data||[]).map(c=>({
+        id:c.id,
+        name:c.name,
+        doc:c.document||'',
+        phone:c.phone||'',
+        email:c.email||'',
+        address:c.address||'',
+        notes:c.notes||'',
+        createdBy:c.created_by,
+        createdAt:c.created_at,
+        updatedAt:c.updated_at
+    }));
+    return onlineClients;
+}
+
+async function saveClient(){
+    if(!canEditBudgets()) return alert('Seu perfil é somente de consulta.');
+
+    const name=document.getElementById('inpNome').value.trim();
+    if(!name) return alert('Informe o nome do cliente.');
+
+    const id=document.getElementById('inpClientId').value;
+    const payload={
+        name,
+        document:document.getElementById('inpDoc').value.trim() || null,
+        phone:document.getElementById('inpPhone').value.trim() || null,
+        address:document.getElementById('inpEnd').value.trim() || null
+    };
+
+    let result;
+    if(id){
+        result=await supabaseClient
+            .from('clients')
+            .update(payload)
+            .eq('id',id)
+            .select()
+            .single();
+    }else{
+        result=await supabaseClient
+            .from('clients')
+            .insert({...payload,created_by:currentUser.id})
+            .select()
+            .single();
+    }
+
+    if(result.error){
+        console.error(result.error);
+        return alert('Não foi possível salvar o cliente na nuvem.');
+    }
+
+    document.getElementById('inpClientId').value=result.data.id;
+    await loadOnlineClients();
+    renderClients();
+    setCloudStatus('Cliente sincronizado.', true);
+    alert('Cliente salvo no Supabase.');
+}
+
+function clearClientForm(){
+    ['inpClientId','inpNome','inpDoc','inpPhone','inpEnd'].forEach(id=>document.getElementById(id).value='');
+}
+
+function selectClient(id){
+    const c=onlineClients.find(x=>x.id===id);
+    if(!c)return;
+    document.getElementById('inpClientId').value=c.id;
+    document.getElementById('inpNome').value=c.name||'';
+    document.getElementById('inpDoc').value=c.doc||'';
+    document.getElementById('inpPhone').value=c.phone||'';
+    document.getElementById('inpEnd').value=c.address||'';
+    window.scrollTo({top:0,behavior:'smooth'});
+}
+
+async function renderClients(){
+    if(currentUser && !onlineClients.length){
+        await loadOnlineClients();
+    }
+
+    const q=(document.getElementById('clientSearch')?.value||'').toLowerCase();
+    const clients=onlineClients.filter(c=>(`${c.name} ${c.doc} ${c.phone} ${c.email}`).toLowerCase().includes(q));
+
+    const count=document.getElementById('clientCount');
+    if(count) count.textContent=`${clients.length} cliente${clients.length===1?'':'s'}`;
+
+    const box=document.getElementById('clientList');
+    if(!box)return;
+
+    box.innerHTML=clients.length?clients.map(c=>`
+        <div class="client-card">
+            <div>
+                <div class="client-name">${escapeHtml(c.name)}</div>
+                <div class="client-meta">${escapeHtml(c.phone||'Sem telefone')}<br>${escapeHtml(c.doc||'Sem documento')}</div>
+                <div class="cloud-client-badge">☁️ sincronizado</div>
+            </div>
+            <button class="mini-btn" onclick="selectClient('${c.id}')">Usar</button>
+        </div>`).join(''):`<div class="recent-meta" style="padding:12px 2px">Nenhum cliente encontrado na nuvem.</div>`;
+}
+
+function goBudgetFromClient(){
+    if(!document.getElementById('inpNome').value.trim()) return alert('Selecione ou informe um cliente.');
+    navTo('page-orcamento');
+    updateBudgetContext();
+}
+function updateBudgetContext(){
+    const nome=document.getElementById('inpNome').value.trim()||'Cliente não informado';
+    document.getElementById('budgetContext').textContent=`Cliente: ${nome}. Configure custos, medidas e serviços.`;
+}
+
+function openServicePage(category){
+    activeCat=category;
+    const exists=[...document.querySelectorAll('.item-card')].some(c=>c.dataset.category===category);
+    if(!exists) addRow(category);
+    document.getElementById('novaCategoria').value=category;
+    navTo('page-orcamento');
+    updateBudgetContext();
+}
+function addServiceFromSector(){
+    if(!canEditBudgets()) return alert('Seu perfil é somente de consulta.');
+    activeCat=document.getElementById('novaCategoria').value;
+    addRow(activeCat);
+}
+
+function addRow(category=activeCat, data=null){
+    if(!canEditBudgets() && !suspendAutosave) return;
+    activeCat=category;
+    const card=document.createElement('div');
+    card.className='item-card';
+    card.dataset.category=category;
+
+    let groups='<option value="">Grupo...</option>';
+    Object.keys(masterData[category]||{}).forEach(g=>groups+=`<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`);
+
+    const is3d=category==='IMPRESSÃO 3D';
+    const isArea=['VISUAL (ADESIVOS/LONAS)','CHAPAS E RÍGIDOS','INSUFILM'].includes(category);
+
+    let detail='';
+    if(is3d){
+        detail=`
+        <div class="grid-2">
+            <input type="number" step="0.01" min="0" class="modern-input peso-mat" placeholder="g / ml">
+            <input type="number" step="0.01" min="0" class="modern-input horas-maq" placeholder="Horas máquina">
+        </div>`;
+    }else if(isArea){
+        detail=`
+        <div class="grid-2">
+            <div class="measure-field"><input type="number" step="0.01" min="0" class="modern-input larg" placeholder="Largura" value="1"><select class="modern-select unit-larg"><option value="m">m</option><option value="cm">cm</option></select></div>
+            <div class="measure-field"><input type="number" step="0.01" min="0" class="modern-input alt" placeholder="Altura" value="1"><select class="modern-select unit-alt"><option value="m">m</option><option value="cm">cm</option></select></div>
+            <div class="measure-info">Área calculada: <span class="area-preview">1,000 m²</span>. Cada dimensão pode usar uma unidade diferente.</div>
+        </div>`;
+    }else{
+        detail=`<div class="field-box"><label>Custo unitário R$</label><input type="number" step="0.01" min="0" class="modern-input p-unit" placeholder="R$ unitário"></div>`;
+    }
+
+    card.innerHTML=`
+        <button class="btn-del-row" onclick="this.closest('.item-card').remove();calc();scheduleAutosave()">×</button>
+        <span class="tag-cat">${escapeHtml(category)}</span>
+        <select class="modern-select sel-grp">${groups}</select>
+        <select class="modern-select sel-mat"><option value="">Item...</option></select>
+        <input type="hidden" class="mat-val">
+        ${detail}
+        <div class="field-box" style="margin-top:7px"><label>Quantidade de peças / unidades</label><input type="number" step="1" min="0" class="modern-input qty" value="1"></div>
+        <div class="item-finance">
+            <div>Custo base<b class="cost-txt">R$ 0,00</b></div>
+            <div class="sale">Preço com lucro<b class="val-txt">R$ 0,00</b></div>
+        </div>`;
+
+    document.getElementById('itens').appendChild(card);
+
+    card.querySelector('.sel-grp').addEventListener('change',e=>updateMat(e.target));
+    card.querySelector('.sel-mat').addEventListener('change',e=>applyPrice(e.target));
+    card.querySelectorAll('input,select').forEach(el=>{
+        if(!el.classList.contains('sel-grp')&&!el.classList.contains('sel-mat')) el.addEventListener('input',calc);
+        if(el.classList.contains('unit-larg')||el.classList.contains('unit-alt')) el.addEventListener('change',calc);
+    });
+
+    if(data) restoreItemCard(card,data);
+    calc();
+    if(!suspendAutosave) scheduleAutosave();
+}
+
+function updateMat(sel, desired=null){
+    const card=sel.closest('.item-card');
+    const cat=card.dataset.category;
+    const mat=card.querySelector('.sel-mat');
+    mat.innerHTML='<option value="">Item...</option>';
+    Object.keys(masterData[cat]?.[sel.value]||{}).forEach(m=>mat.innerHTML+=`<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`);
+    if(desired){mat.value=desired;applyPrice(mat);}
+    calc();
+}
+function applyPrice(sel){
+    const card=sel.closest('.item-card');
+    const cat=card.dataset.category;
+    const grp=card.querySelector('.sel-grp').value;
+    const p=masterData[cat]?.[grp]?.[sel.value];
+    if(p!==undefined){
+        card.querySelector('.mat-val').value=p;
+        if(card.querySelector('.p-unit')) card.querySelector('.p-unit').value=p;
+    }
+    calc();
+}
+function medidaEmMetros(v,u){return u==='cm'?num(v)/100:num(v);}
+
+function calc(){
+    const markup=Math.max(0,num(document.getElementById('lucro').value))/100;
+    const discountPct=Math.min(100,Math.max(0,num(document.getElementById('desc').value)))/100;
+    let itemCost=0,itemSale=0;
+
+    document.querySelectorAll('.item-card').forEach(card=>{
+        const cat=card.dataset.category;
+        const base=num(card.querySelector('.mat-val')?.value);
+        const qty=num(card.querySelector('.qty')?.value);
+        let cost=0;
+
+        if(cat==='IMPRESSÃO 3D'){
+            cost=(num(card.querySelector('.peso-mat')?.value)*base + num(card.querySelector('.horas-maq')?.value)*appConfig.machineHour)*qty;
+        }else if(['VISUAL (ADESIVOS/LONAS)','CHAPAS E RÍGIDOS','INSUFILM'].includes(cat)){
+            const w=medidaEmMetros(card.querySelector('.larg')?.value,card.querySelector('.unit-larg')?.value||'m');
+            const h=medidaEmMetros(card.querySelector('.alt')?.value,card.querySelector('.unit-alt')?.value||'m');
+            const area=w*h;
+            const areaEl=card.querySelector('.area-preview');
+            if(areaEl) areaEl.textContent=`${area.toLocaleString('pt-BR',{minimumFractionDigits:3,maximumFractionDigits:3})} m²`;
+            cost=area*base*qty;
+        }else{
+            const unit=num(card.querySelector('.p-unit')?.value)||base;
+            cost=unit*qty;
+        }
+
+        const sale=cost*(1+markup);
+        card.dataset.cost=cost;
+        card.dataset.sale=sale;
+        const cEl=card.querySelector('.cost-txt');
+        const sEl=card.querySelector('.val-txt');
+        if(cEl)cEl.textContent=money(cost);
+        if(sEl)sEl.textContent=money(sale);
+        itemCost+=cost;
+        itemSale+=sale;
+    });
+
+    const logistics=num(document.getElementById('deslocamento').value);
+    const labor=num(document.getElementById('mao-obra').value);
+    const totalCost=itemCost+logistics+labor;
+    const subtotal=itemSale+logistics+labor;
+    const discount=subtotal*discountPct;
+    const final=subtotal-discount;
+    const profit=final-totalCost;
+
+    lastCalc={itemCost,totalCost,subtotal,discount,final,profit};
+    document.getElementById('labelCost').textContent=money(totalCost);
+    document.getElementById('labelProfit').textContent=money(profit);
+    document.getElementById('labelDiscount').textContent=money(discount);
+    document.getElementById('totalFinal').textContent=money(final);
+    return lastCalc;
+}
+
+function calcDeslocamento(){
+    const consumo=num(document.getElementById('veiculo').value)||10;
+    const km=num(document.getElementById('distanciaKm').value);
+    document.getElementById('deslocamento').value=km>0?((km/consumo)*appConfig.gasPrice).toFixed(2):0;
+    calc();
+}
+
+function collectClient(){
+    return {
+        id:document.getElementById('inpClientId').value||null,
+        name:document.getElementById('inpNome').value.trim(),
+        doc:document.getElementById('inpDoc').value.trim(),
+        phone:document.getElementById('inpPhone').value.trim(),
+        address:document.getElementById('inpEnd').value.trim()
+    };
+}
+function collectItems(){
+    return [...document.querySelectorAll('.item-card')].map(card=>({
+        category:card.dataset.category,
+        group:card.querySelector('.sel-grp')?.value||'',
+        material:card.querySelector('.sel-mat')?.value||'',
+        base:num(card.querySelector('.mat-val')?.value),
+        qty:num(card.querySelector('.qty')?.value),
+        width:card.querySelector('.larg')?.value||'',
+        widthUnit:card.querySelector('.unit-larg')?.value||'m',
+        height:card.querySelector('.alt')?.value||'',
+        heightUnit:card.querySelector('.unit-alt')?.value||'m',
+        weight:card.querySelector('.peso-mat')?.value||'',
+        hours:card.querySelector('.horas-maq')?.value||'',
+        unitPrice:card.querySelector('.p-unit')?.value||'',
+        cost:num(card.dataset.cost),
+        sale:num(card.dataset.sale)
+    }));
+}
+const STATUS_TO_DB={
+    'Rascunho':'rascunho',
+    'Enviado':'enviado',
+    'Aprovado':'aprovado',
+    'Recusado':'recusado'
+};
+const STATUS_FROM_DB={
+    'rascunho':'Rascunho',
+    'enviado':'Enviado',
+    'aprovado':'Aprovado',
+    'recusado':'Recusado'
+};
+
+function collectBudget(){
+    calc();
+    const old=onlineBudgets.find(b=>b.id===currentBudgetId);
+
+    return {
+        id:currentBudgetId||null,
+        number:old?.number||null,
+        title:document.getElementById('budgetTitle').value.trim()||'Orçamento sem título',
+        status:document.getElementById('budgetStatus').value,
+        client:collectClient(),
+        items:collectItems(),
+        markup:num(document.getElementById('lucro').value),
+        discountPct:num(document.getElementById('desc').value),
+        vehicle:document.getElementById('veiculo').value,
+        distance:num(document.getElementById('distanciaKm').value),
+        logistics:num(document.getElementById('deslocamento').value),
+        labor:num(document.getElementById('mao-obra').value),
+        assignedTo:document.getElementById('budgetAssigned').value||'',
+        proposal:{
+            validityDays:num(document.getElementById('proposalValidity').value)||appConfig.defaultValidity,
+            payment:document.getElementById('proposalPayment').value.trim(),
+            execution:document.getElementById('proposalExecution').value.trim(),
+            notes:document.getElementById('proposalNotes').value.trim()
+        },
+        totals:{...lastCalc},
+        createdAt:old?.createdAt||new Date().toISOString(),
+        updatedAt:new Date().toISOString(),
+        ownerId:old?.ownerId||currentUser?.id||null,
+        ownerName:old?.ownerName||currentUser?.name||'Usuário'
+    };
+}
+
+async function ensureOnlineClient(client){
+    if(client.id) return client.id;
+
+    const byDoc=client.doc
+        ? onlineClients.find(c=>c.doc && c.doc===client.doc)
+        : null;
+    const byName=onlineClients.find(c=>
+        c.name?.trim().toLowerCase()===client.name?.trim().toLowerCase() &&
+        (!client.phone || !c.phone || c.phone===client.phone)
+    );
+    const found=byDoc||byName;
+    if(found){
+        document.getElementById('inpClientId').value=found.id;
+        return found.id;
+    }
+
+    const {data,error}=await supabaseClient.from('clients')
+        .insert({
+            name:client.name,
+            document:client.doc||null,
+            phone:client.phone||null,
+            address:client.address||null,
+            created_by:currentUser.id
+        })
+        .select('id')
+        .single();
+
+    if(error) throw error;
+
+    document.getElementById('inpClientId').value=data.id;
+    await loadOnlineClients();
+    return data.id;
+}
+
+function budgetToDbPayload(b,clientId){
+    // vehicle/distance ficam dentro do snapshot nesta versão para preservar o estado
+    // sem exigir nova migration SQL.
+    const snapshot={
+        ...b.client,
+        id:clientId,
+        _vehicle:b.vehicle,
+        _distance:b.distance
+    };
+
+    return {
+        title:b.title,
+        client_id:clientId||null,
+        client_snapshot:snapshot,
+        status:STATUS_TO_DB[b.status]||'rascunho',
+        markup_pct:b.markup,
+        discount_pct:b.discountPct,
+        logistics:b.logistics,
+        labor:b.labor,
+        item_cost_total:b.totals.itemCost,
+        total_cost:b.totals.totalCost,
+        subtotal:b.totals.subtotal,
+        discount_value:b.totals.discount,
+        final_total:b.totals.final,
+        estimated_profit:b.totals.profit,
+        validity_days:b.proposal.validityDays,
+        payment_terms:b.proposal.payment||null,
+        execution_term:b.proposal.execution||null,
+        notes:b.proposal.notes||null,
+        assigned_to:b.assignedTo||null
+    };
+}
+
+function itemToDbPayload(i,budgetId,index){
+    const ref=getCatalogRef(i.category,i.group,i.material);
+    return {
+        budget_id:budgetId,
+        category_id:ref.categoryId,
+        group_id:ref.groupId,
+        catalog_item_id:ref.itemId,
+        category_name:i.category||null,
+        group_name:i.group||null,
+        item_name:i.material||'Item',
+        base_cost:i.base,
+        quantity:i.qty||1,
+        width:i.width!==''?num(i.width):null,
+        width_unit:i.widthUnit||'m',
+        height:i.height!==''?num(i.height):null,
+        height_unit:i.heightUnit||'m',
+        weight:i.weight!==''?num(i.weight):null,
+        machine_hours:i.hours!==''?num(i.hours):null,
+        unit_cost:i.unitPrice!==''?num(i.unitPrice):(i.base||null),
+        cost_total:i.cost,
+        sale_total:i.sale,
+        details:{catalog_unit:ref.unit||null},
+        sort_order:index
+    };
+}
+
+function dbBudgetToUi(db){
+    const snap=db.client_snapshot||{};
+    const items=(db.budget_items||[])
+        .sort((a,b)=>(a.sort_order||0)-(b.sort_order||0))
+        .map(i=>({
+            id:i.id,
+            category:i.category_name||'',
+            group:i.group_name||'',
+            material:i.item_name||'',
+            base:Number(i.base_cost)||0,
+            qty:Number(i.quantity)||1,
+            width:i.width??'',
+            widthUnit:i.width_unit||'m',
+            height:i.height??'',
+            heightUnit:i.height_unit||'m',
+            weight:i.weight??'',
+            hours:i.machine_hours??'',
+            unitPrice:i.unit_cost??'',
+            cost:Number(i.cost_total)||0,
+            sale:Number(i.sale_total)||0
+        }));
+
+    return {
+        id:db.id,
+        number:db.number,
+        title:db.title||'Orçamento',
+        status:STATUS_FROM_DB[db.status]||'Rascunho',
+        client:{
+            id:db.client_id||snap.id||null,
+            name:snap.name||'',
+            doc:snap.doc||snap.document||'',
+            phone:snap.phone||'',
+            address:snap.address||''
+        },
+        items,
+        markup:Number(db.markup_pct)||0,
+        discountPct:Number(db.discount_pct)||0,
+        vehicle:String(snap._vehicle||'10'),
+        distance:Number(snap._distance)||0,
+        logistics:Number(db.logistics)||0,
+        labor:Number(db.labor)||0,
+        assignedTo:db.assigned_to||'',
+        proposal:{
+            validityDays:Number(db.validity_days)||15,
+            payment:db.payment_terms||'',
+            execution:db.execution_term||'',
+            notes:db.notes||''
+        },
+        totals:{
+            itemCost:Number(db.item_cost_total)||0,
+            totalCost:Number(db.total_cost)||0,
+            subtotal:Number(db.subtotal)||0,
+            discount:Number(db.discount_value)||0,
+            final:Number(db.final_total)||0,
+            profit:Number(db.estimated_profit)||0
+        },
+        createdAt:db.created_at,
+        updatedAt:db.updated_at,
+        ownerId:db.created_by||null,
+        ownerName:onlineProfiles.find(u=>u.id===db.created_by)?.name||'Usuário'
+    };
+}
+
+async function loadOnlineBudgets(){
+    if(!currentUser || !canEditBudgets()){
+        onlineBudgets=[];
+        return onlineBudgets;
+    }
+
+    const {data,error}=await supabaseClient.from('budgets')
+        .select('*, budget_items(*)')
+        .order('updated_at',{ascending:false});
+
+    if(error){
+        console.error('budgets:',error);
+        setCloudStatus('Erro ao carregar orçamentos.', false);
+        return onlineBudgets;
+    }
+
+    onlineBudgets=(data||[]).map(dbBudgetToUi);
+    return onlineBudgets;
+}
+
+async function saveBudget(showMessage=true){
+    if(!canEditBudgets()) return alert('Seu perfil é somente de consulta.');
+
+    const client=collectClient();
+    if(!client.name) return alert('Informe ou selecione um cliente antes de salvar.');
+
+    const items=collectItems();
+    if(!items.length) return alert('Adicione pelo menos um serviço.');
+    if(items.some(i=>!i.material)) return alert('Selecione o item/material em todos os serviços.');
+
+    try{
+        const clientId=await ensureOnlineClient(client);
+        const budget=collectBudget();
+        budget.client.id=clientId;
+        const payload=budgetToDbPayload(budget,clientId);
+
+        let result;
+        if(currentBudgetId){
+            result=await supabaseClient.from('budgets')
+                .update(payload)
+                .eq('id',currentBudgetId)
+                .select('*')
+                .single();
+        }else{
+            result=await supabaseClient.from('budgets')
+                .insert({...payload,created_by:currentUser.id})
+                .select('*')
+                .single();
+        }
+
+        if(result.error) throw result.error;
+        const saved=result.data;
+        currentBudgetId=saved.id;
+
+        // Substitui itens do orçamento pela versão atual da tela.
+        const del=await supabaseClient.from('budget_items')
+            .delete()
+            .eq('budget_id',saved.id);
+        if(del.error) throw del.error;
+
+        const rows=items.map((i,index)=>itemToDbPayload(i,saved.id,index));
+        if(rows.length){
+            const ins=await supabaseClient.from('budget_items').insert(rows);
+            if(ins.error) throw ins.error;
+        }
+
+        clearAutosave();
+        await Promise.all([loadOnlineClients(),loadOnlineBudgets()]);
+        renderBudgetList(false);
+        updateDashboard(false);
+
+        const savedUi=onlineBudgets.find(b=>b.id===saved.id) || {
+            ...budget,id:saved.id,number:saved.number
+        };
+
+        if(showMessage) alert(`Orçamento ${saved.number} sincronizado.`);
+        setCloudStatus('Orçamento sincronizado.', true);
+        return savedUi;
+    }catch(error){
+        console.error(error);
+        setCloudStatus('Falha ao salvar orçamento.', false);
+        alert(`Não foi possível salvar o orçamento na nuvem.\n${error.message||''}`);
+        return null;
+    }
+}
+
+async function markAndSave(status){
+    document.getElementById('budgetStatus').value=status;
+    const saved=await saveBudget(true);
+    if(saved) renderReview(saved,false);
+}
+
+function restoreItemCard(card,d){
+    card.querySelector('.sel-grp').value=d.group||'';
+    updateMat(card.querySelector('.sel-grp'),d.material||'');
+    card.querySelector('.mat-val').value=d.base||0;
+    if(card.querySelector('.qty'))card.querySelector('.qty').value=d.qty??1;
+    if(card.querySelector('.larg'))card.querySelector('.larg').value=d.width||1;
+    if(card.querySelector('.unit-larg'))card.querySelector('.unit-larg').value=d.widthUnit||'m';
+    if(card.querySelector('.alt'))card.querySelector('.alt').value=d.height||1;
+    if(card.querySelector('.unit-alt'))card.querySelector('.unit-alt').value=d.heightUnit||'m';
+    if(card.querySelector('.peso-mat'))card.querySelector('.peso-mat').value=d.weight||'';
+    if(card.querySelector('.horas-maq'))card.querySelector('.horas-maq').value=d.hours||'';
+    if(card.querySelector('.p-unit'))card.querySelector('.p-unit').value=d.unitPrice||d.base||0;
+}
+function loadBudget(id){
+    const b=onlineBudgets.find(x=>x.id===id);
+    if(!b)return;
+    if(currentUser?.role==='tecnico') return;
+    applyBudgetToForm(b,false);
+}
+
+function duplicateBudget(id){
+    if(!canEditBudgets())return;
+    const b=onlineBudgets.find(x=>x.id===id);
+    if(!b)return;
+    applyBudgetToForm(b,false);
+    currentBudgetId=null;
+    document.getElementById('budgetTitle').value=`Cópia - ${b.title}`;
+    document.getElementById('budgetStatus').value='Rascunho';
+    scheduleAutosave();
+    alert('Cópia carregada. Salve para criar um novo orçamento online.');
+}
+
+async function deleteBudget(id){
+    if(currentUser?.role!=='admin') return alert('Somente o administrador pode excluir orçamentos.');
+    if(!confirm('Excluir este orçamento da nuvem?')) return;
+
+    const {error}=await supabaseClient.from('budgets').delete().eq('id',id);
+    if(error){
+        console.error(error);
+        return alert('Não foi possível excluir o orçamento.');
+    }
+
+    if(currentBudgetId===id) currentBudgetId=null;
+    await loadOnlineBudgets();
+    renderBudgetList(false);
+    updateDashboard(false);
+}
+
+function itemDetailText(i){
+    if(['VISUAL (ADESIVOS/LONAS)','CHAPAS E RÍGIDOS','INSUFILM'].includes(i.category)){
+        const wM=medidaEmMetros(i.width,i.widthUnit),hM=medidaEmMetros(i.height,i.heightUnit);
+        const area=wM*hM;
+        return `${i.width||0} ${i.widthUnit||'m'} × ${i.height||0} ${i.heightUnit||'m'} = ${area.toLocaleString('pt-BR',{minimumFractionDigits:3,maximumFractionDigits:3})} m²`;
+    }
+    if(i.category==='IMPRESSÃO 3D') return `${i.weight||0} g/ml · ${i.hours||0} h máquina`;
+    return `Custo unitário ${money(i.unitPrice||i.base)}`;
+}
+
+function openReview(){
+    if(!canEditBudgets()) return alert('Seu perfil é somente de consulta.');
+    calc();
+    renderReview(collectBudget(),false);
+}
+
+function renderReview(b,readOnly=false){
+    const assignedUser=onlineProfiles.find(u=>u.id===b.assignedTo);
+    document.getElementById('reviewClient').innerHTML=`
+        <strong>${escapeHtml(b.client?.name||'Cliente não informado')}</strong>
+        <div>${escapeHtml(b.client?.doc||'Sem documento')} · ${escapeHtml(b.client?.phone||'Sem telefone')}<br>${escapeHtml(b.client?.address||'Sem endereço')}<br>Status: ${escapeHtml(b.status||'Rascunho')} · Responsável: ${escapeHtml(assignedUser?.name||b.ownerName||'Não atribuído')}</div>`;
+    document.getElementById('reviewItems').innerHTML=(b.items||[]).length?b.items.map(i=>`
+        <div class="review-item">
+            <div class="review-item-cat">${escapeHtml(i.category)}</div>
+            <div class="review-item-name">${escapeHtml(i.material||'Item não selecionado')}</div>
+            <div class="review-item-meta">${escapeHtml(itemDetailText(i))}<br>Quantidade: ${i.qty}</div>
+            <div class="review-item-value">${money(i.sale)}</div>
+        </div>`).join(''):`<div class="review-item">Nenhum item adicionado.</div>`;
+    document.getElementById('reviewFinance').innerHTML=`
+        <div class="finance-breakdown">
+            <div class="finance-line"><span>Custo dos itens</span><span>${money(b.totals?.itemCost)}</span></div>
+            <div class="finance-line"><span>Deslocamento</span><span>${money(b.logistics)}</span></div>
+            <div class="finance-line"><span>Mão de obra</span><span>${money(b.labor)}</span></div>
+            <div class="finance-line"><span>Subtotal venda</span><span>${money(b.totals?.subtotal)}</span></div>
+            <div class="finance-line"><span>Desconto</span><span>- ${money(b.totals?.discount)}</span></div>
+            <div class="finance-line profit"><span>Lucro estimado</span><span>${money(b.totals?.profit)}</span></div>
+            <div class="finance-total-row"><label>TOTAL CLIENTE</label><span>${money(b.totals?.final)}</span></div>
+        </div>
+        <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:10px;font-size:8px;color:var(--muted);line-height:1.65">
+            <strong style="color:var(--text)">Condições</strong><br>
+            Validade: ${escapeHtml(b.proposal?.validityDays||appConfig.defaultValidity)} dias<br>
+            Pagamento: ${escapeHtml(b.proposal?.payment||appConfig.defaultPayment)}<br>
+            Prazo: ${escapeHtml(b.proposal?.execution||appConfig.defaultExecution)}<br>
+            Observações: ${escapeHtml(b.proposal?.notes||'Nenhuma')}
+        </div>`;
+
+    const actions=document.querySelector('#page-resumo .review-actions');
+    if(readOnly){
+        actions.innerHTML=`
+            <button class="btn-secondary" onclick="navTo('page-gestao')">VOLTAR</button>
+            <button class="btn-primary" onclick="gerarPDFFromSaved('${b.id}')">GERAR PROPOSTA</button>`;
+    }else{
+        actions.innerHTML=`
+            <button class="btn-secondary" onclick="navTo('page-orcamento')">EDITAR</button>
+            <button class="btn-primary" onclick="saveBudget(true)">SALVAR</button>
+            <button class="btn-secondary" onclick="markAndSave('Enviado')">MARCAR ENVIADO</button>
+            <button class="btn-primary" onclick="gerarPDF()">GERAR PROPOSTA</button>`;
+    }
+    navTo('page-resumo');
+}
+
+async function renderBudgetList(refresh=false){
+    const box=document.getElementById('budgetList');
+    if(!box)return;
+
+    if(currentUser?.role==='tecnico'){
+        box.innerHTML=`<div class="permission-note">O perfil Técnico usará o módulo de <strong>Ordens de Serviço</strong>. Os orçamentos comerciais ficam disponíveis para Admin/Vendedor.</div>`;
+        return;
+    }
+
+    if(refresh) await loadOnlineBudgets();
+
+    const q=(document.getElementById('budgetSearch')?.value||'').toLowerCase();
+    const status=document.getElementById('budgetFilter')?.value||'';
+
+    const budgets=onlineBudgets
+        .filter(b=>(!status||b.status===status))
+        .filter(b=>(`${b.number||''} ${b.title||''} ${b.client?.name||''}`).toLowerCase().includes(q))
+        .sort((a,b)=>new Date(b.updatedAt)-new Date(a.updatedAt));
+
+    box.innerHTML=budgets.length?budgets.map(b=>`
+        <div class="budget-card">
+            <div class="budget-head">
+                <div>
+                    <div class="budget-name">${escapeHtml(b.number||'')} · ${escapeHtml(b.title)}</div>
+                    <div class="budget-meta">${escapeHtml(b.client?.name||'Sem cliente')}<br>Atualizado ${new Date(b.updatedAt).toLocaleDateString('pt-BR')}</div>
+                </div>
+                <span class="status-chip status-${escapeHtml(b.status)}">${escapeHtml(b.status)}</span>
+            </div>
+            <div class="budget-value">${money(b.totals?.final)}</div>
+            <div class="budget-actions">
+                <button class="btn-secondary" onclick="loadBudget('${b.id}')">Editar</button>
+                <button class="btn-secondary" onclick="duplicateBudget('${b.id}')">Duplicar</button>
+                ${currentUser?.role==='admin'?`<button class="btn-danger" onclick="deleteBudget('${b.id}')">Excluir</button>`:`<button class="btn-secondary" onclick="openSavedReview('${b.id}')">Revisar</button>`}
+            </div>
+        </div>`).join(''):`<div class="recent-meta" style="padding:12px 2px">Nenhum orçamento encontrado na nuvem.</div>`;
+}
+
+function openSavedReview(id){
+    const b=onlineBudgets.find(x=>x.id===id);
+    if(b) renderReview(b,true);
+}
+
+async function updateDashboard(refresh=false){
+    if(currentUser?.role==='tecnico'){
+        document.getElementById('kpiRevenue').textContent=money(0).replace(',00','');
+        document.getElementById('kpiSent').textContent='—';
+        document.getElementById('kpiApproved').textContent='—';
+        document.getElementById('kpiDrafts').textContent='—';
+        document.getElementById('recentBudgets').innerHTML=`<div class="permission-note">Seu painel técnico será alimentado pelas Ordens de Serviço na próxima etapa.</div>`;
+        return;
+    }
+
+    if(refresh) await loadOnlineBudgets();
+
+    const budgets=onlineBudgets;
+    const now=new Date();
+    const inMonth=b=>{
+        const d=new Date(b.updatedAt);
+        return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+    };
+
+    const monthly=budgets.filter(inMonth);
+    const approved=monthly.filter(b=>b.status==='Aprovado');
+    const sent=budgets.filter(b=>b.status==='Enviado').length;
+    const drafts=budgets.filter(b=>b.status==='Rascunho').length;
+    const revenue=approved.reduce((s,b)=>s+num(b.totals?.final),0);
+
+    document.getElementById('kpiRevenue').textContent=money(revenue).replace(',00','');
+    document.getElementById('kpiSent').textContent=sent;
+    document.getElementById('kpiApproved').textContent=approved.length;
+    document.getElementById('kpiDrafts').textContent=drafts;
+
+    const recent=[...budgets]
+        .sort((a,b)=>new Date(b.updatedAt)-new Date(a.updatedAt))
+        .slice(0,4);
+
+    document.getElementById('recentBudgets').innerHTML=recent.length?recent.map(b=>`
+        <div class="recent-card" onclick="loadBudget('${b.id}')" style="cursor:pointer">
+            <div>
+                <div class="recent-name">${escapeHtml(b.client?.name||b.title)}</div>
+                <div class="recent-meta">${escapeHtml(b.number||'')} · ${escapeHtml(b.status)}</div>
+            </div>
+            <div class="recent-value">${money(b.totals?.final)}</div>
+        </div>`).join(''):`<div class="recent-meta" style="padding:10px 2px">Seus orçamentos online aparecerão aqui.</div>`;
+}
+
+function scheduleAutosave(){
+    if(suspendAutosave || !currentUser || !canEditBudgets()) return;
+    clearTimeout(autosaveTimer);
+    const status=document.getElementById('autosaveStatus');
+    if(status) status.textContent='Salvando alterações...';
+    autosaveTimer=setTimeout(saveAutosave,550);
+}
+function saveAutosave(){
+    if(suspendAutosave || !canEditBudgets()) return;
+    try{
+        calc();
+        const draft=collectBudget();
+        draft.autosavedAt=new Date().toISOString();
+        setStore(STORAGE.AUTOSAVE,draft);
+        const status=document.getElementById('autosaveStatus');
+        if(status) status.textContent=`Salvo automaticamente às ${new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}`;
+        updateAutosaveBanner();
+    }catch(e){}
+}
+function clearAutosave(){
+    localStorage.removeItem(STORAGE.AUTOSAVE);
+    updateAutosaveBanner();
+}
+function updateAutosaveBanner(){
+    const card=document.getElementById('autosaveCard');
+    if(!card)return;
+    const d=getStore(STORAGE.AUTOSAVE,null);
+    card.classList.toggle('show',!!d);
+    if(d){
+        document.getElementById('autosaveMeta').textContent=`${d.client?.name||'Sem cliente'} · ${d.title||'Orçamento'} · salvo ${new Date(d.autosavedAt||d.updatedAt).toLocaleString('pt-BR')}`;
+    }
+}
+function resumeAutosave(){
+    const d=getStore(STORAGE.AUTOSAVE,null);
+    if(!d)return;
+    applyBudgetToForm(d,true);
+}
+function applyBudgetToForm(b,isAutosave=false){
+    if(!canEditBudgets()) return;
+    currentBudgetId=b.id||null;
+    document.getElementById('budgetTitle').value=b.title||'';
+    document.getElementById('budgetStatus').value=b.status||'Rascunho';
+    document.getElementById('lucro').value=b.markup??appConfig.defaultMarkup;
+    document.getElementById('desc').value=b.discountPct??appConfig.defaultDiscount;
+    document.getElementById('veiculo').value=b.vehicle||'10';
+    document.getElementById('distanciaKm').value=b.distance||0;
+    document.getElementById('deslocamento').value=b.logistics||0;
+    document.getElementById('mao-obra').value=b.labor??appConfig.defaultLabor;
+    document.getElementById('proposalValidity').value=b.proposal?.validityDays??appConfig.defaultValidity;
+    document.getElementById('proposalPayment').value=b.proposal?.payment??appConfig.defaultPayment;
+    document.getElementById('proposalExecution').value=b.proposal?.execution??appConfig.defaultExecution;
+    document.getElementById('proposalNotes').value=b.proposal?.notes||'';
+    refreshAssignedUsers(b.assignedTo||currentUser?.id||'');
+
+    document.getElementById('inpClientId').value=b.client?.id||'';
+    document.getElementById('inpNome').value=b.client?.name||'';
+    document.getElementById('inpDoc').value=b.client?.doc||'';
+    document.getElementById('inpPhone').value=b.client?.phone||'';
+    document.getElementById('inpEnd').value=b.client?.address||'';
+
+    suspendAutosave=true;
+    document.getElementById('itens').innerHTML='';
+    (b.items||[]).forEach(i=>addRow(i.category,i));
+    suspendAutosave=false;
+    calc();updateBudgetContext();navTo('page-orcamento');
+}
+
+async function loadOnlineSettings(){
+    if(!currentUser || !canEditBudgets()) return appConfig;
+
+    const {data,error}=await supabaseClient
+        .from('settings')
+        .select('*')
+        .eq('id','main')
+        .single();
+
+    if(error){
+        console.error('settings:',error);
+        setCloudStatus('Erro ao carregar configurações.', false);
+        return appConfig;
+    }
+
+    appConfig={
+        companyName:data.company_name||DEFAULT_CONFIG.companyName,
+        companyDoc:data.company_document||'',
+        companyPhone:data.company_phone||'',
+        companyAddress:data.company_address||'',
+        gasPrice:Number(data.gas_price)||DEFAULT_CONFIG.gasPrice,
+        machineHour:Number(data.machine_hour)||DEFAULT_CONFIG.machineHour,
+        defaultMarkup:Number(data.default_markup),
+        defaultLabor:Number(data.default_labor),
+        defaultDiscount:Number(data.default_discount),
+        defaultValidity:Number(data.default_validity)||DEFAULT_CONFIG.defaultValidity,
+        defaultPayment:data.default_payment||DEFAULT_CONFIG.defaultPayment,
+        defaultExecution:data.default_execution||DEFAULT_CONFIG.defaultExecution
+    };
+    onlineSettingsLoaded=true;
+    return appConfig;
+}
+
+function loadConfigForm(){
+    if(!document.getElementById('cfgCompanyName'))return;
+    const map={
+        cfgCompanyName:'companyName',cfgCompanyDoc:'companyDoc',cfgCompanyPhone:'companyPhone',cfgCompanyAddress:'companyAddress',
+        cfgGasPrice:'gasPrice',cfgMachineHour:'machineHour',cfgMarkup:'defaultMarkup',cfgLabor:'defaultLabor',
+        cfgDiscount:'defaultDiscount',cfgValidity:'defaultValidity',cfgPayment:'defaultPayment',cfgExecution:'defaultExecution'
+    };
+    Object.entries(map).forEach(([id,key])=>document.getElementById(id).value=appConfig[key]??'');
+}
+
+async function saveSettings(){
+    if(!canManageSettings())return;
+
+    const next={
+        companyName:document.getElementById('cfgCompanyName').value.trim()||DEFAULT_CONFIG.companyName,
+        companyDoc:document.getElementById('cfgCompanyDoc').value.trim(),
+        companyPhone:document.getElementById('cfgCompanyPhone').value.trim(),
+        companyAddress:document.getElementById('cfgCompanyAddress').value.trim(),
+        gasPrice:num(document.getElementById('cfgGasPrice').value)||DEFAULT_CONFIG.gasPrice,
+        machineHour:num(document.getElementById('cfgMachineHour').value)||DEFAULT_CONFIG.machineHour,
+        defaultMarkup:num(document.getElementById('cfgMarkup').value),
+        defaultLabor:num(document.getElementById('cfgLabor').value),
+        defaultDiscount:num(document.getElementById('cfgDiscount').value),
+        defaultValidity:num(document.getElementById('cfgValidity').value)||DEFAULT_CONFIG.defaultValidity,
+        defaultPayment:document.getElementById('cfgPayment').value.trim()||DEFAULT_CONFIG.defaultPayment,
+        defaultExecution:document.getElementById('cfgExecution').value.trim()||DEFAULT_CONFIG.defaultExecution
+    };
+
+    const {error}=await supabaseClient.from('settings')
+        .update({
+            company_name:next.companyName,
+            company_document:next.companyDoc||null,
+            company_phone:next.companyPhone||null,
+            company_address:next.companyAddress||null,
+            gas_price:next.gasPrice,
+            machine_hour:next.machineHour,
+            default_markup:next.defaultMarkup,
+            default_labor:next.defaultLabor,
+            default_discount:next.defaultDiscount,
+            default_validity:next.defaultValidity,
+            default_payment:next.defaultPayment,
+            default_execution:next.defaultExecution
+        })
+        .eq('id','main');
+
+    if(error){
+        console.error(error);
+        return alert('Não foi possível salvar as configurações online.');
+    }
+
+    appConfig=next;
+    onlineSettingsLoaded=true;
+    alert('Configurações sincronizadas com o Supabase.');
+}
+
+async function loadOnlineCatalog(){
+    if(!currentUser || !canEditBudgets()) return masterData;
+
+    const [catRes, groupRes, itemRes] = await Promise.all([
+        supabaseClient.from('catalog_categories')
+            .select('id,name,slug,sort_order,active')
+            .eq('active',true)
+            .order('sort_order',{ascending:true}),
+        supabaseClient.from('catalog_groups')
+            .select('id,category_id,name,active')
+            .eq('active',true)
+            .order('name',{ascending:true}),
+        supabaseClient.from('catalog_items')
+            .select('id,group_id,name,unit,base_cost,active,metadata')
+            .eq('active',true)
+            .order('name',{ascending:true})
+    ]);
+
+    if(catRes.error || groupRes.error || itemRes.error){
+        console.error('catalog:',catRes.error,groupRes.error,itemRes.error);
+        setCloudStatus('Erro ao carregar catálogo online.', false);
+        return masterData;
+    }
+
+    const categories=catRes.data||[];
+    const groups=groupRes.data||[];
+    const items=itemRes.data||[];
+    const catsById=Object.fromEntries(categories.map(c=>[c.id,c]));
+    const groupsById=Object.fromEntries(groups.map(g=>[g.id,g]));
+
+    const nextData={};
+    const nextRefs={};
+
+    categories.forEach(c=>{
+        nextData[c.name]={};
+        nextRefs[c.name]={categoryId:c.id,slug:c.slug,groups:{}};
+    });
+
+    groups.forEach(g=>{
+        const cat=catsById[g.category_id];
+        if(!cat || !nextData[cat.name]) return;
+        nextData[cat.name][g.name]={};
+        nextRefs[cat.name].groups[g.name]={groupId:g.id,items:{}};
+    });
+
+    items.forEach(i=>{
+        const group=groupsById[i.group_id];
+        const cat=group ? catsById[group.category_id] : null;
+        if(!group || !cat || !nextData[cat.name]?.[group.name]) return;
+
+        nextData[cat.name][group.name][i.name]=Number(i.base_cost)||0;
+        nextRefs[cat.name].groups[group.name].items[i.name]={
+            itemId:i.id,
+            unit:i.unit||'un',
+            price:Number(i.base_cost)||0
+        };
+    });
+
+    masterData=nextData;
+    catalogRefs=nextRefs;
+    setCloudStatus('Catálogo sincronizado.', true);
+    return masterData;
+}
+
+function getCatalogRef(category,group,item){
+    const cat=catalogRefs?.[category];
+    const grp=cat?.groups?.[group];
+    const itm=grp?.items?.[item];
+    return {
+        categoryId:cat?.categoryId||null,
+        groupId:grp?.groupId||null,
+        itemId:itm?.itemId||null,
+        unit:itm?.unit||null
+    };
+}
+
+function renderCatalogSectorOptions(){
+    const sel=document.getElementById('catalogSector');
+    if(!sel||!masterData)return;
+    const old=sel.value;
+    sel.innerHTML=Object.keys(masterData).map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+    if(Object.keys(masterData).includes(old)) sel.value=old;
+}
+
+function renderCatalog(){
+    if(!canManageSettings()||!masterData)return;
+    const sector=document.getElementById('catalogSector')?.value||Object.keys(masterData)[0];
+    const box=document.getElementById('catalogList');
+    if(!box)return;
+
+    const rows=[];
+    Object.entries(masterData[sector]||{}).forEach(([group,items])=>{
+        Object.entries(items).forEach(([item,price])=>{
+            const ref=getCatalogRef(sector,group,item);
+            rows.push({group,item,price,itemId:ref.itemId,unit:ref.unit||'un'});
+        });
+    });
+
+    box.innerHTML=rows.length?rows.map(r=>`
+        <div class="catalog-row" data-item-id="${r.itemId||''}">
+            <div>
+                <div class="catalog-name">${escapeHtml(r.item)}</div>
+                <div class="catalog-meta">${escapeHtml(r.group)} · ${escapeHtml(r.unit)}</div>
+            </div>
+            <input type="number" step="0.01" class="modern-input catalog-price-edit" value="${Number(r.price)}">
+            <div class="catalog-actions" style="display:flex;gap:5px;flex-wrap:wrap">
+                <button class="mini-btn" onclick="saveCatalogRow(this)">Salvar</button>
+                <button class="mini-btn" style="color:var(--danger)" onclick="deleteCatalogItem(this)">Excluir</button>
+            </div>
+        </div>`).join(''):'<div class="recent-meta">Nenhum item neste setor.</div>';
+}
+
+async function saveCatalogRow(btn){
+    if(!canManageSettings())return;
+    const row=btn.closest('.catalog-row');
+    const itemId=row.dataset.itemId;
+    const price=num(row.querySelector('.catalog-price-edit').value);
+    if(!itemId) return alert('Item sem referência online.');
+
+    btn.disabled=true;
+    const {error}=await supabaseClient.from('catalog_items')
+        .update({base_cost:price})
+        .eq('id',itemId);
+    btn.disabled=false;
+
+    if(error){
+        console.error(error);
+        return alert('Não foi possível atualizar o preço.');
+    }
+
+    await loadOnlineCatalog();
+    renderCatalogSectorOptions();
+    renderCatalog();
+}
+
+async function addCatalogItem(){
+    if(!canManageSettings())return;
+
+    const sector=document.getElementById('catalogSector').value;
+    const groupName=document.getElementById('catalogGroup').value.trim();
+    const itemName=document.getElementById('catalogItem').value.trim();
+    const price=num(document.getElementById('catalogPrice').value);
+    const unit=document.getElementById('catalogUnit').value||'un';
+
+    if(!sector||!groupName||!itemName) return alert('Informe setor, grupo e item.');
+
+    const catRef=catalogRefs[sector];
+    if(!catRef?.categoryId) return alert('Categoria não encontrada na nuvem.');
+
+    let groupId=catRef.groups?.[groupName]?.groupId||null;
+
+    if(!groupId){
+        const {data,error}=await supabaseClient.from('catalog_groups')
+            .insert({category_id:catRef.categoryId,name:groupName,active:true})
+            .select('id')
+            .single();
+        if(error){
+            console.error(error);
+            return alert('Não foi possível criar o grupo.');
+        }
+        groupId=data.id;
+    }
+
+    const {error}=await supabaseClient.from('catalog_items')
+        .upsert({
+            group_id:groupId,
+            name:itemName,
+            unit,
+            base_cost:price,
+            active:true
+        },{onConflict:'group_id,name'});
+
+    if(error){
+        console.error(error);
+        return alert('Não foi possível adicionar o item.');
+    }
+
+    document.getElementById('catalogGroup').value='';
+    document.getElementById('catalogItem').value='';
+    document.getElementById('catalogPrice').value='';
+
+    await loadOnlineCatalog();
+    renderCatalogSectorOptions();
+    document.getElementById('catalogSector').value=sector;
+    renderCatalog();
+    alert('Item adicionado ao catálogo online.');
+}
+
+async function deleteCatalogItem(btn){
+    if(!canManageSettings())return;
+    const row=btn.closest('.catalog-row');
+    const itemId=row.dataset.itemId;
+    if(!itemId)return;
+    if(!confirm('Excluir este item do catálogo online? Orçamentos antigos manterão o nome/preço salvo no snapshot.'))return;
+
+    const {error}=await supabaseClient.from('catalog_items').delete().eq('id',itemId);
+    if(error){
+        console.error(error);
+        return alert('Não foi possível excluir o item.');
+    }
+
+    await loadOnlineCatalog();
+    renderCatalogSectorOptions();
+    renderCatalog();
+}
+
+async function resetCatalog(){
+    if(!canManageSettings())return;
+    await loadOnlineCatalog();
+    renderCatalogSectorOptions();
+    renderCatalog();
+    alert('Catálogo recarregado do Supabase.');
+}
+
+async function exportBackup(){
+    if(!canManageSettings())return;
+
+    await Promise.all([
+        loadOnlineProfiles(),
+        loadOnlineClients(),
+        loadOnlineSettings(),
+        loadOnlineCatalog(),
+        loadOnlineBudgets()
+    ]);
+
+    const backup={
+        app:'Furion OS',
+        version:'6.1-cloud',
+        exportedAt:new Date().toISOString(),
+        note:'Cópia de leitura. Senhas do Supabase Auth não fazem parte deste arquivo.',
+        profiles:onlineProfiles,
+        clients:onlineClients,
+        budgets:onlineBudgets,
+        settings:appConfig,
+        catalog:masterData
+    };
+
+    const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download=`furion-cloud-export-${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+function importBackup(input){
+    if(!canManageSettings()||!input.files?.[0])return;
+    const reader=new FileReader();
+
+    reader.onload=async ()=>{
+        try{
+            const b=JSON.parse(reader.result);
+
+            // Importação aqui é focada em backups das versões locais antigas.
+            if(b.app!=='Furion OS') throw new Error('Arquivo não pertence ao Furion OS.');
+
+            if(Array.isArray(b.budgets)){
+                setStore(STORAGE.BUDGETS,b.budgets);
+            }
+            if(b.config) setStore(STORAGE.CONFIG,b.config);
+            if(b.catalog) setStore(STORAGE.CATALOG,b.catalog);
+
+            alert('Arquivo legado carregado neste navegador. Agora clique em "Migrar dados locais deste dispositivo".');
+            updateMigrationStatus();
+        }catch(e){
+            console.error(e);
+            alert('Não foi possível ler o arquivo legado.');
+        }
+        input.value='';
+    };
+
+    reader.readAsText(input.files[0]);
+}
+
+function inferLegacyUnit(category,group,item){
+    if(['VISUAL (ADESIVOS/LONAS)','CHAPAS E RÍGIDOS','INSUFILM','ROUTER / LASER'].includes(category)) return 'm2';
+    if(category==='IMPRESSÃO 3D'){
+        if(group==='FILAMENTOS') return 'g';
+        if(group==='RESINAS') return 'ml';
+    }
+    if(category==='CCTV / SEGURANÇA' && group==='INFRA' && /\(m\)/i.test(item)) return 'm';
+    return 'un';
+}
+
+function slugifyCategory(value){
+    return String(value||'setor')
+        .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g,'-')
+        .replace(/^-|-$/g,'')
+        .slice(0,60) || `setor-${Date.now()}`;
+}
+
+async function migrateLegacyCatalog(localCatalog){
+    if(!localCatalog || typeof localCatalog!=='object') return 0;
+    let migrated=0;
+
+    for(const [categoryName,groups] of Object.entries(localCatalog)){
+        let category=catalogRefs[categoryName];
+
+        if(!category){
+            const {data,error}=await supabaseClient.from('catalog_categories')
+                .upsert({
+                    name:categoryName,
+                    slug:slugifyCategory(categoryName),
+                    sort_order:Object.keys(catalogRefs).length+1,
+                    active:true
+                },{onConflict:'slug'})
+                .select('id,name,slug')
+                .single();
+            if(error) throw error;
+            await loadOnlineCatalog();
+            category=catalogRefs[categoryName] || {categoryId:data.id,groups:{}};
+        }
+
+        for(const [groupName,items] of Object.entries(groups||{})){
+            let groupId=category.groups?.[groupName]?.groupId||null;
+
+            if(!groupId){
+                const {data,error}=await supabaseClient.from('catalog_groups')
+                    .insert({category_id:category.categoryId,name:groupName,active:true})
+                    .select('id')
+                    .single();
+                if(error && error.code!=='23505') throw error;
+                if(data?.id) groupId=data.id;
+                else{
+                    const found=await supabaseClient.from('catalog_groups')
+                        .select('id')
+                        .eq('category_id',category.categoryId)
+                        .eq('name',groupName)
+                        .single();
+                    if(found.error) throw found.error;
+                    groupId=found.data.id;
+                }
+            }
+
+            for(const [itemName,price] of Object.entries(items||{})){
+                const {error}=await supabaseClient.from('catalog_items')
+                    .upsert({
+                        group_id:groupId,
+                        name:itemName,
+                        unit:inferLegacyUnit(categoryName,groupName,itemName),
+                        base_cost:num(price),
+                        active:true
+                    },{onConflict:'group_id,name'});
+                if(error) throw error;
+                migrated++;
+            }
+        }
+
+        await loadOnlineCatalog();
+    }
+
+    return migrated;
+}
+
+async function ensureLegacyClient(client,createdBy=currentUser.id){
+    if(!client?.name) return null;
+
+    await loadOnlineClients();
+
+    const found=onlineClients.find(c=>
+        (client.doc && c.doc===client.doc) ||
+        (
+            c.name?.trim().toLowerCase()===client.name.trim().toLowerCase() &&
+            (!client.phone || !c.phone || c.phone===client.phone)
+        )
+    );
+    if(found) return found.id;
+
+    const {data,error}=await supabaseClient.from('clients')
+        .insert({
+            name:client.name,
+            document:client.doc||null,
+            phone:client.phone||null,
+            address:client.address||null,
+            created_by:createdBy
+        })
+        .select('id')
+        .single();
+
+    if(error) throw error;
+    await loadOnlineClients();
+    return data.id;
+}
+
+async function insertLegacyBudget(b){
+    if(!b?.client?.name || !Array.isArray(b.items) || !b.items.length) return null;
+
+    const clientId=await ensureLegacyClient(b.client);
+    const payload={
+        title:b.title||'Orçamento migrado',
+        client_id:clientId,
+        client_snapshot:{
+            ...(b.client||{}),
+            id:clientId,
+            legacy_id:b.id||null,
+            legacy_number:b.number||null,
+            _vehicle:b.vehicle||'10',
+            _distance:num(b.distance)
+        },
+        status:STATUS_TO_DB[b.status]||'rascunho',
+        markup_pct:num(b.markup),
+        discount_pct:num(b.discountPct),
+        logistics:num(b.logistics),
+        labor:num(b.labor),
+        item_cost_total:num(b.totals?.itemCost),
+        total_cost:num(b.totals?.totalCost),
+        subtotal:num(b.totals?.subtotal),
+        discount_value:num(b.totals?.discount),
+        final_total:num(b.totals?.final),
+        estimated_profit:num(b.totals?.profit),
+        validity_days:num(b.proposal?.validityDays)||appConfig.defaultValidity,
+        payment_terms:b.proposal?.payment||null,
+        execution_term:b.proposal?.execution||null,
+        notes:[
+            b.proposal?.notes||'',
+            b.number?`Migrado do orçamento local ${b.number}`:''
+        ].filter(Boolean).join('\n')||null,
+        assigned_to:onlineProfiles.some(u=>u.id===b.assignedTo)?b.assignedTo:null,
+        created_by:currentUser.id
+    };
+
+    const {data,error}=await supabaseClient.from('budgets')
+        .insert(payload)
+        .select('id')
+        .single();
+    if(error) throw error;
+
+    const rows=(b.items||[]).map((i,index)=>itemToDbPayload(i,data.id,index));
+    if(rows.length){
+        const ins=await supabaseClient.from('budget_items').insert(rows);
+        if(ins.error) throw ins.error;
+    }
+
+    return data.id;
+}
+
+function updateMigrationStatus(){
+    const el=document.getElementById('migrationStatus');
+    if(!el)return;
+
+    const clients=getStore(STORAGE.CLIENTS,[]);
+    const budgets=getStore(STORAGE.BUDGETS,[]);
+    const catalog=getStore(STORAGE.CATALOG,null);
+    const config=getStore(STORAGE.CONFIG,null);
+
+    const parts=[];
+    if(Array.isArray(clients)&&clients.length) parts.push(`${clients.length} clientes locais`);
+    if(Array.isArray(budgets)&&budgets.length) parts.push(`${budgets.length} orçamentos locais`);
+    if(catalog) parts.push('catálogo local');
+    if(config) parts.push('configuração local');
+
+    el.textContent=parts.length
+        ? `Encontrado: ${parts.join(' · ')}`
+        : 'Nenhum dado legado relevante encontrado neste navegador.';
+}
+
+async function migrateLegacyData(){
+    if(!canManageSettings())return;
+
+    const button=document.getElementById('migrationButton');
+    const status=document.getElementById('migrationStatus');
+    const localClients=getStore(STORAGE.CLIENTS,[]);
+    const localBudgets=getStore(STORAGE.BUDGETS,[]);
+    const localCatalog=getStore(STORAGE.CATALOG,null);
+    const localConfig=getStore(STORAGE.CONFIG,null);
+
+    if(
+        (!Array.isArray(localClients)||!localClients.length) &&
+        (!Array.isArray(localBudgets)||!localBudgets.length) &&
+        !localCatalog && !localConfig
+    ){
+        return alert('Não há dados locais antigos para migrar neste navegador.');
+    }
+
+    if(!confirm('Enviar os dados locais encontrados para o Supabase? Faça isso apenas uma vez neste dispositivo.'))return;
+
+    button.disabled=true;
+    button.textContent='MIGRANDO...';
+
+    try{
+        let clientCount=0,budgetCount=0,catalogCount=0;
+
+        // Configuração local
+        if(localConfig){
+            const cfg={...DEFAULT_CONFIG,...localConfig};
+            const {error}=await supabaseClient.from('settings').update({
+                company_name:cfg.companyName,
+                company_document:cfg.companyDoc||null,
+                company_phone:cfg.companyPhone||null,
+                company_address:cfg.companyAddress||null,
+                gas_price:num(cfg.gasPrice)||DEFAULT_CONFIG.gasPrice,
+                machine_hour:num(cfg.machineHour)||DEFAULT_CONFIG.machineHour,
+                default_markup:num(cfg.defaultMarkup),
+                default_labor:num(cfg.defaultLabor),
+                default_discount:num(cfg.defaultDiscount),
+                default_validity:num(cfg.defaultValidity)||DEFAULT_CONFIG.defaultValidity,
+                default_payment:cfg.defaultPayment||null,
+                default_execution:cfg.defaultExecution||null
+            }).eq('id','main');
+            if(error) throw error;
+        }
+
+        // Catálogo local
+        if(localCatalog){
+            catalogCount=await migrateLegacyCatalog(localCatalog);
+        }
+
+        // Clientes locais
+        if(Array.isArray(localClients)){
+            for(const c of localClients){
+                const before=onlineClients.length;
+                await ensureLegacyClient(c);
+                if(onlineClients.length>before) clientCount++;
+            }
+        }
+
+        // Orçamentos locais
+        if(Array.isArray(localBudgets)){
+            for(const b of localBudgets){
+                // flag simples para não duplicar uma segunda execução neste navegador
+                const legacyKey=`furion_migrated_budget_${b.id||b.number||''}`;
+                if(localStorage.getItem(legacyKey)) continue;
+
+                const id=await insertLegacyBudget(b);
+                if(id){
+                    localStorage.setItem(legacyKey,'1');
+                    budgetCount++;
+                }
+            }
+        }
+
+        await Promise.all([
+            loadOnlineSettings(),
+            loadOnlineCatalog(),
+            loadOnlineClients(),
+            loadOnlineBudgets()
+        ]);
+
+        loadConfigForm();
+        renderCatalogSectorOptions();
+        renderCatalog();
+        renderClients();
+        renderBudgetList(false);
+        updateDashboard(false);
+
+        status.textContent=`Migração concluída: ${clientCount} clientes novos · ${budgetCount} orçamentos · ${catalogCount} itens de catálogo processados.`;
+        alert('Migração para a nuvem concluída.');
+    }catch(error){
+        console.error(error);
+        status.textContent='A migração encontrou um erro. Os itens já concluídos permaneceram na nuvem.';
+        alert(`Erro na migração: ${error.message||error}`);
+    }finally{
+        button.disabled=false;
+        button.textContent='MIGRAR DADOS LOCAIS DESTE DISPOSITIVO';
+    }
+}
+
+function fillPdfFromBudget(b){
+    const assigned=onlineProfiles.find(u=>u.id===b.assignedTo);
+    document.getElementById('pdf-cliente').textContent=b.client?.name||'Não informado';
+    document.getElementById('pdf-doc-val').textContent=b.client?.doc||'Não informado';
+    document.getElementById('pdf-phone').textContent=b.client?.phone||'Não informado';
+    document.getElementById('pdf-endereco').textContent=b.client?.address||'Não informado';
+    document.getElementById('pdf-data').textContent=new Date().toLocaleDateString('pt-BR');
+    document.getElementById('pdf-status').textContent=`${b.number||''} · ${b.status||'Rascunho'}`;
+    document.getElementById('pdf-validity').textContent=`${b.proposal?.validityDays||appConfig.defaultValidity} dias`;
+    document.getElementById('pdf-payment').textContent=b.proposal?.payment||appConfig.defaultPayment;
+    document.getElementById('pdf-execution').textContent=b.proposal?.execution||appConfig.defaultExecution;
+    document.getElementById('pdf-owner').textContent=assigned?.name||b.ownerName||currentUser?.name||'Não informado';
+    document.getElementById('pdf-notes').textContent=b.proposal?.notes||'Nenhuma';
+
+    const header=document.querySelector('#print-area .p-header div:nth-child(2) strong');
+    if(header)header.textContent=appConfig.companyName||DEFAULT_CONFIG.companyName;
+    const extra=[appConfig.companyDoc,appConfig.companyPhone,appConfig.companyAddress].filter(Boolean).join(' · ');
+    const extraEl=document.getElementById('pdf-company-extra');
+    if(extraEl)extraEl.textContent=extra;
+
+    const body=document.getElementById('pdf-body');
+    body.innerHTML=(b.items||[]).map(i=>`
+        <tr>
+            <td><strong>${escapeHtml(i.material||'Item')}</strong><br><small>${escapeHtml(i.category)}</small></td>
+            <td>${escapeHtml(itemDetailText(i))}</td>
+            <td style="text-align:center">${i.qty}</td>
+            <td style="text-align:right">${money(i.sale)}</td>
+        </tr>`).join('');
+    if(b.logistics>0)body.innerHTML+=`<tr><td>Deslocamento e logística</td><td></td><td style="text-align:center">1</td><td style="text-align:right">${money(b.logistics)}</td></tr>`;
+    if(b.labor>0)body.innerHTML+=`<tr><td>Mão de obra</td><td></td><td style="text-align:center">1</td><td style="text-align:right">${money(b.labor)}</td></tr>`;
+    document.getElementById('pdf-total').textContent=money(b.totals?.final);
+}
+function gerarPDFFromSaved(id){
+    const b=onlineBudgets.find(x=>x.id===id);
+    if(!b)return;
+    fillPdfFromBudget(b);
+    window.print();
+}
+
+async function gerarPDF(){
+    if(!canEditBudgets()) return;
+    const b=await saveBudget(false);
+    if(!b)return;
+    fillPdfFromBudget(b);
+    window.print();
+}
+</script>
+</body>
+</html>
