@@ -1,5 +1,6 @@
 README.md
 wrangler.jsonc
+src/
 .git
 .github
 .DS_Store
