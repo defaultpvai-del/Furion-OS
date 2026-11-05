@@ -563,6 +563,10 @@
         body.innerHTML += '<tr><td>' + escapeHtml(item.description || 'Custo adicional') + '</td><td></td><td style="text-align:center">1</td><td style="text-align:right">' + money(item.value) + '</td></tr>';
       });
     }
+    const discount = num(budget?.totals?.discount);
+    if (body && discount > 0) {
+      body.innerHTML += '<tr><td>Desconto</td><td></td><td style="text-align:center">1</td><td style="text-align:right">- ' + money(discount) + '</td></tr>';
+    }
   };
 
   function initialize() {
