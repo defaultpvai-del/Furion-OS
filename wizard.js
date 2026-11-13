@@ -23,7 +23,8 @@
     applyBudgetToForm: window.applyBudgetToForm,
     renderReview: window.renderReview,
     openReview: window.openReview,
-    fillPdfFromBudget: window.fillPdfFromBudget
+    fillPdfFromBudget: window.fillPdfFromBudget,
+    collectItems: window.collectItems
   };
 
   let currentStep = 1;
@@ -321,6 +322,12 @@
       const priceInput = card.querySelector('.p-m2');
       const baseInput = card.querySelector('.mat-val');
       if (priceInput && baseInput) baseInput.value = priceInput.value;
+      if (card.dataset.pricingMode === 'linear') {
+        const heightInput = card.querySelector('.alt');
+        const heightUnit = card.querySelector('.unit-alt');
+        if (heightInput) heightInput.value = '1';
+        if (heightUnit) heightUnit.value = 'm';
+      }
     });
 
     const base = original.calc();
@@ -384,12 +391,56 @@
     }
   };
 
+  function configureAreaPricing(card, mode) {
+    if (!card || !areaCategories.has(card.dataset.category)) return;
+    const select = card.querySelector('.pricing-mode');
+    const heightField = card.querySelector('.alt')?.closest('.measure-field');
+    const heightInput = card.querySelector('.alt');
+    const heightUnit = card.querySelector('.unit-alt');
+    const widthInput = card.querySelector('.larg');
+    const widthLabel = card.querySelector('.linear-length-label');
+    const areaInfo = card.querySelector('.measure-info');
+    const linear = mode === 'linear';
+    if (select) select.value = linear ? 'linear' : 'area';
+    card.dataset.pricingMode = linear ? 'linear' : 'area';
+    if (heightField) heightField.hidden = linear;
+    if (heightInput && linear) {
+      heightInput.value = '1';
+      if (heightUnit) heightUnit.value = 'm';
+    }
+    if (widthInput) widthInput.placeholder = linear ? 'Comprimento' : 'Largura';
+    if (widthLabel) widthLabel.textContent = linear ? 'Comprimento do material' : 'Largura';
+    if (areaInfo) areaInfo.textContent = linear
+      ? 'Cálculo por metro linear: comprimento × preço por metro × quantidade.'
+      : 'Área calculada: ';
+    const costLabel = card.querySelector('.m2-cost-field label');
+    if (costLabel) costLabel.textContent = linear ? 'Custo terceirizado por metro linear (R$)' : 'Custo terceirizado por m² (R$)';
+    const hint = card.querySelector('.m2-cost-field .field-hint');
+    if (hint) hint.textContent = linear
+      ? 'Informe quanto você paga por 1 metro linear deste material. O valor vale somente para este item.'
+      : 'Valor editável somente neste item do orçamento. Não altera o preço do catálogo.';
+  }
+
   window.addRow = function (category, data) {
     const result = original.addRow(category, data);
     const cards = document.querySelectorAll('.item-card');
     const card = cards[cards.length - 1];
     if (card && areaCategories.has(card.dataset.category) && !card.querySelector('.p-m2')) {
       const qtyField = card.querySelector('.qty')?.closest('.field-box');
+      const modeField = document.createElement('div');
+      modeField.className = 'field-box pricing-mode-field';
+      modeField.innerHTML = '<label>Como você compra este material?</label><select class="modern-select pricing-mode"><option value="area">Por metro quadrado (m²)</option><option value="linear">Por metro linear (m)</option></select>';
+      if (qtyField) qtyField.before(modeField);
+      const measureGrid = card.querySelector('.larg')?.closest('.grid-2');
+      if (measureGrid) {
+        const first = card.querySelector('.larg')?.closest('.measure-field');
+        if (first && !first.querySelector('.linear-length-label')) {
+          const label = document.createElement('label');
+          label.className = 'linear-length-label';
+          label.textContent = 'Largura';
+          first.insertBefore(label, first.firstChild);
+        }
+      }
       const field = document.createElement('div');
       field.className = 'field-box m2-cost-field';
       field.innerHTML =
@@ -404,11 +455,28 @@
         scheduleAutosave();
       });
       if (qtyField) qtyField.before(field);
+      card.querySelector('.pricing-mode').addEventListener('change', function () {
+        configureAreaPricing(card, this.value);
+        calc();
+        scheduleAutosave();
+      });
       const costLabel = card.querySelector('.item-finance > div:first-child');
-      if (costLabel && costLabel.firstChild) costLabel.firstChild.textContent = 'Custo terceirizado';
+      if (costLabel && costLabel.firstChild) costLabel.firstChild.textContent = 'Custo do material';
+      configureAreaPricing(card, data?.pricingMode || 'area');
       calc();
     }
     return result;
+  };
+
+  window.collectItems = function () {
+    const items = original.collectItems();
+    return items.map((item, index) => {
+      const card = document.querySelectorAll('.item-card')[index];
+      if (card && areaCategories.has(card.dataset.category)) {
+        item.pricingMode = card.dataset.pricingMode || 'area';
+      }
+      return item;
+    });
   };
 
   window.collectBudget = function () {
@@ -504,6 +572,14 @@
 
   window.renderReview = function (budget, readOnly) {
     original.renderReview(budget, readOnly);
+    const reviewRows = document.querySelectorAll('#reviewItems .review-item');
+    (budget?.items || []).forEach((item, index) => {
+      if (item.pricingMode === 'linear' && reviewRows[index]) {
+        const meta = reviewRows[index].querySelector('.review-item-meta');
+        if (meta) meta.innerHTML = escapeHtml(item.width || 0) + ' ' + escapeHtml(item.widthUnit || 'm') +
+          ' de comprimento · preço por metro linear<br>Quantidade: ' + escapeHtml(item.qty || 1);
+      }
+    });
     const extras = Array.isArray(budget?.extraCosts) ? budget.extraCosts : [];
     const extrasTotal = extras.reduce((sum, item) => sum + num(item.value), 0);
     const materialSale = (budget?.items || []).reduce((sum, item) => sum + num(item.sale), 0);
@@ -563,7 +639,7 @@
     const safe = value => escapeHtml(value == null ? '' : String(value));
     const rows = items.map(item =>
       '<tr><td><strong>' + safe(item.material || 'Item') + '</strong><br><small>' + safe(item.category || '') + '</small></td>' +
-      '<td>' + safe(itemDetailText(item)) + '</td><td class="center">' + safe(item.qty || 1) +
+      '<td>' + safe(item.pricingMode === 'linear' ? ((item.width || 0) + ' ' + (item.widthUnit || 'm') + ' de comprimento · metro linear') : itemDetailText(item)) + '</td><td class="center">' + safe(item.qty || 1) +
       '</td><td class="right">' + money(item.sale) + '</td></tr>'
     ).join('');
     const extraRows = [
