@@ -8,7 +8,7 @@ export default {
       html = html.replace('</body>', '<script src="/v62.js?v=62"></script></body>');
     }
     if (!html.includes('/wizard.js')) {
-      html = html.replace('</body>', '<script src="/wizard.js?v=3"></script></body>');
+      html = html.replace('</body>', '<script src="/wizard.js?v=4"></script></body>');
     }
     const headers = new Headers(response.headers);
     headers.delete('content-length');
