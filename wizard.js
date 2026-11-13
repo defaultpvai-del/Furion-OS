@@ -410,9 +410,13 @@
     }
     if (widthInput) widthInput.placeholder = linear ? 'Comprimento' : 'Largura';
     if (widthLabel) widthLabel.textContent = linear ? 'Comprimento do material' : 'Largura';
-    if (areaInfo) areaInfo.textContent = linear
-      ? 'Cálculo por metro linear: comprimento × preço por metro × quantidade.'
-      : 'Área calculada: ';
+    if (areaInfo) {
+      if (linear) {
+        areaInfo.textContent = 'Cálculo por metro linear: comprimento × preço por metro × quantidade.';
+      } else {
+        areaInfo.innerHTML = 'Área calculada: <span class="area-preview">1,000 m²</span>. Cada dimensão pode usar uma unidade diferente.';
+      }
+    }
     const costLabel = card.querySelector('.m2-cost-field label');
     if (costLabel) costLabel.textContent = linear ? 'Custo terceirizado por metro linear (R$)' : 'Custo terceirizado por m² (R$)';
     const hint = card.querySelector('.m2-cost-field .field-hint');
