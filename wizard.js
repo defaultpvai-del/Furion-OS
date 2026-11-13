@@ -555,18 +555,121 @@
     updateStepView();
   };
 
+  function proposalHtml(budget) {
+    const client = budget?.client || {};
+    const items = Array.isArray(budget?.items) ? budget.items : [];
+    const extras = Array.isArray(budget?.extraCosts) ? budget.extraCosts : [];
+    const cfg = window.appConfig || {};
+    const safe = value => escapeHtml(value == null ? '' : String(value));
+    const rows = items.map(item =>
+      '<tr><td><strong>' + safe(item.material || 'Item') + '</strong><br><small>' + safe(item.category || '') + '</small></td>' +
+      '<td>' + safe(itemDetailText(item)) + '</td><td class="center">' + safe(item.qty || 1) +
+      '</td><td class="right">' + money(item.sale) + '</td></tr>'
+    ).join('');
+    const extraRows = [
+      ...(num(budget?.logistics) > 0 ? [{description:'Deslocamento e logística',value:budget.logistics}] : []),
+      ...(num(budget?.labor) > 0 ? [{description:'Mão de obra',value:budget.labor}] : []),
+      ...extras
+    ].map(item => '<tr><td>' + safe(item.description || 'Custo adicional') +
+      '</td><td></td><td class="center">1</td><td class="right">' + money(item.value) + '</td></tr>').join('');
+    const subtotal = num(budget?.totals?.subtotal);
+    const discount = num(budget?.totals?.discount);
+    const final = num(budget?.totals?.final);
+    const extra = [cfg.companyDoc, cfg.companyPhone, cfg.companyAddress].filter(Boolean).join(' · ');
+    return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
+      '<title>Proposta ' + safe(budget?.number || '') + ' · ' + safe(client.name || 'Cliente') + '</title>' +
+      '<style>' +
+      '*{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#171717;margin:0;background:#f1f3f5;font-size:12px}' +
+      '.toolbar{position:sticky;top:0;background:#101820;color:#fff;padding:12px;display:flex;gap:8px;justify-content:center;z-index:5}' +
+      '.toolbar button{border:0;border-radius:8px;padding:12px 16px;font-weight:700;background:#00aeef;color:#071018}' +
+      '.sheet{max-width:850px;margin:20px auto;background:#fff;padding:36px;min-height:100vh;box-shadow:0 2px 16px #0002}' +
+      '.head{display:flex;justify-content:space-between;gap:20px;align-items:center;border-bottom:2px solid #111;padding-bottom:16px;margin-bottom:20px}' +
+      '.brand{font-size:28px;font-weight:900;letter-spacing:1px}.muted{color:#555;font-size:10px;line-height:1.6}' +
+      '.meta{margin:14px 0 18px;line-height:1.8}.meta strong{display:inline-block;min-width:90px}' +
+      'table{width:100%;border-collapse:collapse;margin-top:18px}th{font-size:9px;text-transform:uppercase;text-align:left;background:#f2f4f6}' +
+      'th,td{padding:9px 7px;border-bottom:1px solid #ddd;vertical-align:top}small{color:#666}.center{text-align:center}.right{text-align:right;white-space:nowrap}' +
+      '.totals{margin:18px 0 0 auto;max-width:340px}.totals div{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #ddd}.grand{font-size:20px;font-weight:900;border-top:2px solid #111!important;margin-top:6px;padding-top:12px!important}' +
+      '.conditions{margin-top:24px;line-height:1.8}.foot{margin-top:32px;padding-top:12px;border-top:1px solid #ddd;font-size:9px;color:#555}' +
+      '@page{size:A4;margin:14mm}@media print{body{background:#fff}.toolbar{display:none}.sheet{margin:0;padding:0;max-width:none;min-height:0;box-shadow:none}tr{break-inside:avoid}thead{display:table-header-group}}' +
+      '@media(max-width:600px){.sheet{margin:0;padding:18px}.head{align-items:flex-start}.brand{font-size:22px}table{font-size:10px}th,td{padding:7px 4px}}' +
+      '</style></head><body><div class="toolbar"><button onclick="window.print()">SALVAR / IMPRIMIR PDF</button><button onclick="window.close()">FECHAR</button></div>' +
+      '<main class="sheet"><header class="head"><div><div class="brand">' + safe(cfg.companyName || 'FURION') +
+      '</div><div class="muted">' + safe(extra) + '</div></div><div style="text-align:right"><strong>PROPOSTA COMERCIAL</strong><div class="muted">' +
+      safe(budget?.number || '') + '<br>' + new Date().toLocaleDateString('pt-BR') + '</div></div></header>' +
+      '<section class="meta"><strong>Cliente:</strong> ' + safe(client.name || 'Não informado') + '<br><strong>Documento:</strong> ' +
+      safe(client.doc || 'Não informado') + '<br><strong>Telefone:</strong> ' + safe(client.phone || 'Não informado') +
+      '<br><strong>Endereço:</strong> ' + safe(client.address || 'Não informado') + '</section>' +
+      '<table><thead><tr><th>Descrição</th><th>Medidas / detalhes</th><th class="center">Qtd.</th><th class="right">Total</th></tr></thead>' +
+      '<tbody>' + rows + extraRows + '</tbody></table>' +
+      '<section class="totals"><div><span>Subtotal</span><strong>' + money(subtotal) + '</strong></div>' +
+      (discount > 0 ? '<div><span>Desconto</span><strong>- ' + money(discount) + '</strong></div>' : '') +
+      '<div class="grand"><span>TOTAL</span><span>' + money(final) + '</span></div></section>' +
+      '<section class="conditions"><strong>Condições comerciais</strong><br>Validade: ' + safe(budget?.proposal?.validityDays || cfg.defaultValidity || 15) +
+      ' dias<br>Pagamento: ' + safe(budget?.proposal?.payment || cfg.defaultPayment || 'A combinar') +
+      '<br>Prazo de execução: ' + safe(budget?.proposal?.execution || cfg.defaultExecution || 'A combinar') +
+      '<br>Observações: ' + safe(budget?.proposal?.notes || 'Nenhuma') + '</section>' +
+      '<footer class="foot">Documento gerado pelo Furion OS. Orçamento: ' + safe(budget?.status || 'Rascunho') + '</footer></main></body></html>';
+  }
+
+  function openProposalWindow() {
+    const popup = window.open('', '_blank');
+    if (!popup) {
+      alert('O navegador bloqueou a janela da proposta. Permita pop-ups para este site e tente novamente.');
+      return null;
+    }
+    popup.document.open();
+    popup.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Preparando proposta...</title></head><body style="font-family:Arial;padding:24px">Preparando sua proposta...</body></html>');
+    popup.document.close();
+    return popup;
+  }
+
+  function showProposal(popup, budget) {
+    if (!popup || popup.closed) {
+      alert('A janela da proposta foi fechada antes de terminar.');
+      return;
+    }
+    popup.document.open();
+    popup.document.write(proposalHtml(budget));
+    popup.document.close();
+    popup.focus();
+  }
+
+  window.gerarPDF = async function () {
+    if (!canEditBudgets()) return alert('Seu perfil é somente de consulta.');
+    const popup = openProposalWindow();
+    if (!popup) return;
+    try {
+      const saved = await saveBudget(false);
+      if (!saved) {
+        popup.close();
+        return;
+      }
+      const current = collectBudget();
+      current.id = saved.id;
+      current.number = saved.number || current.number;
+      current.status = saved.status || current.status;
+      current.ownerName = saved.ownerName || current.ownerName;
+      showProposal(popup, current);
+    } catch (error) {
+      console.error('PDF proposal:', error);
+      popup.close();
+      alert('Não foi possível preparar a proposta: ' + (error?.message || error));
+    }
+  };
+
+  window.gerarPDFFromSaved = function (id) {
+    const popup = openProposalWindow();
+    if (!popup) return;
+    const budget = (window.onlineBudgets || onlineBudgets).find(item => item.id === id);
+    if (!budget) {
+      popup.close();
+      return alert('Orçamento não encontrado. Atualize a lista e tente novamente.');
+    }
+    showProposal(popup, budget);
+  };
+
   window.fillPdfFromBudget = function (budget) {
     original.fillPdfFromBudget(budget);
-    const body = $('pdf-body');
-    if (body && Array.isArray(budget?.extraCosts)) {
-      budget.extraCosts.forEach(item => {
-        body.innerHTML += '<tr><td>' + escapeHtml(item.description || 'Custo adicional') + '</td><td></td><td style="text-align:center">1</td><td style="text-align:right">' + money(item.value) + '</td></tr>';
-      });
-    }
-    const discount = num(budget?.totals?.discount);
-    if (body && discount > 0) {
-      body.innerHTML += '<tr><td>Desconto</td><td></td><td style="text-align:center">1</td><td style="text-align:right">- ' + money(discount) + '</td></tr>';
-    }
   };
 
   function initialize() {
