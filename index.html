@@ -1234,6 +1234,40 @@ function selectClient(id){
     document.getElementById('inpPhone').value=c.phone||'';
     document.getElementById('inpEnd').value=c.address||'';
     window.scrollTo({top:0,behavior:'smooth'});
+    setCloudStatus('Cliente selecionado. Você pode reutilizá-lo em outro orçamento.', true);
+}
+
+async function deleteClient(id){
+    if(!canEditBudgets()) return alert('Seu perfil é somente de consulta.');
+    const client=onlineClients.find(c=>c.id===id);
+    if(!client) return alert('Cliente não encontrado. Atualize a lista e tente novamente.');
+    const confirmed=confirm(
+        'Excluir o cadastro de "'+client.name+'"?\\n\\n' +
+        'Os orçamentos antigos serão preservados com a cópia dos dados do cliente, mas deixarão de ficar vinculados ao cadastro. Esta ação não pode ser desfeita.'
+    );
+    if(!confirmed) return;
+
+    try{
+        const {error:unlinkError}=await supabaseClient
+            .from('budgets')
+            .update({client_id:null})
+            .eq('client_id',id);
+        if(unlinkError) throw unlinkError;
+
+        const {error:deleteError}=await supabaseClient
+            .from('clients')
+            .delete()
+            .eq('id',id);
+        if(deleteError) throw deleteError;
+
+        if(document.getElementById('inpClientId').value===id) clearClientForm();
+        await loadOnlineClients();
+        await renderClients();
+        setCloudStatus('Cadastro do cliente excluído. Orçamentos antigos preservados.', true);
+    }catch(error){
+        console.error('delete client:',error);
+        alert('Não foi possível excluir o cliente. Nenhum cadastro foi removido. Verifique sua conexão ou as permissões do Supabase.');
+    }
 }
 
 async function renderClients(){
@@ -1257,7 +1291,10 @@ async function renderClients(){
                 <div class="client-meta">${escapeHtml(c.phone||'Sem telefone')}<br>${escapeHtml(c.doc||'Sem documento')}</div>
                 <div class="cloud-client-badge">☁️ sincronizado</div>
             </div>
-            <button class="mini-btn" onclick="selectClient('${c.id}')">Usar</button>
+            <div style="display:flex;flex-direction:column;gap:6px;align-items:stretch">
+                <button class="mini-btn" onclick="selectClient('${c.id}')">USAR EM OUTRO ORÇAMENTO</button>
+                <button class="mini-btn" style="border-color:rgba(255,77,103,.4);color:#ff8394" onclick="deleteClient('${c.id}')">EXCLUIR</button>
+            </div>
         </div>`).join(''):`<div class="recent-meta" style="padding:12px 2px">Nenhum cliente encontrado na nuvem.</div>`;
 }
 
