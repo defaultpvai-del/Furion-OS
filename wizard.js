@@ -639,7 +639,7 @@
     const client = budget?.client || {};
     const items = Array.isArray(budget?.items) ? budget.items : [];
     const extras = Array.isArray(budget?.extraCosts) ? budget.extraCosts : [];
-    const cfg = window.appConfig || {};
+    const cfg = typeof appConfig !== 'undefined' ? appConfig : {};
     const safe = value => escapeHtml(value == null ? '' : String(value));
     const rows = items.map(item =>
       '<tr><td><strong>' + safe(item.material || 'Item') + '</strong><br><small>' + safe(item.category || '') + '</small></td>' +
@@ -660,7 +660,7 @@
       '<title>Proposta ' + safe(budget?.number || '') + ' · ' + safe(client.name || 'Cliente') + '</title>' +
       '<style>' +
       '*{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#171717;margin:0;background:#f1f3f5;font-size:12px}' +
-      '.toolbar{position:sticky;top:0;background:#101820;color:#fff;padding:12px;display:flex;gap:8px;justify-content:center;z-index:5}' +
+      '.toolbar{position:sticky;top:0;background:#101820;color:#fff;padding:12px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;z-index:5}' +
       '.toolbar button{border:0;border-radius:8px;padding:12px 16px;font-weight:700;background:#00aeef;color:#071018}' +
       '.sheet{max-width:850px;margin:20px auto;background:#fff;padding:36px;min-height:100vh;box-shadow:0 2px 16px #0002}' +
       '.head{display:flex;justify-content:space-between;gap:20px;align-items:center;border-bottom:2px solid #111;padding-bottom:16px;margin-bottom:20px}' +
@@ -711,6 +711,45 @@
     popup.document.open();
     popup.document.write(proposalHtml(budget));
     popup.document.close();
+    const toolbar = popup.document.querySelector('.toolbar');
+    for (const format of ['PDF','PNG','JPEG']) {
+      const button = popup.document.createElement('button');
+      button.textContent = 'BAIXAR '+format;
+      toolbar.appendChild(button);
+      button.onclick = async () => {
+        button.disabled = true;
+        try {
+          const load = url => new Promise((resolve,reject)=>{
+            const script=popup.document.createElement('script');
+            script.src=url; script.onload=resolve; script.onerror=reject;
+            popup.document.head.appendChild(script);
+          });
+          if(!popup.html2canvas) await load('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js');
+          const sheet=popup.document.querySelector('.sheet');
+          const canvas=await popup.html2canvas(sheet,{scale:2,backgroundColor:'#ffffff',windowWidth:Math.max(850,sheet.scrollWidth)});
+          const name='Furion-Proposta-'+String(budget.number||'orcamento').replace(/[^a-zA-Z0-9_-]/g,'_');
+          if(format==='PDF'){
+            if(!popup.jspdf) await load('https://cdn.jsdelivr.net/npm/jspdf@3.0.3/dist/jspdf.umd.min.js');
+            const pdf=new popup.jspdf.jsPDF('p','mm','a4');
+            const width=190, pageHeight=277, sliceHeight=Math.floor(canvas.width*pageHeight/width);
+            for(let y=0;y<canvas.height;y+=sliceHeight){
+              const part=popup.document.createElement('canvas');
+              part.width=canvas.width;part.height=Math.min(sliceHeight,canvas.height-y);
+              part.getContext('2d').drawImage(canvas,0,y,part.width,part.height,0,0,part.width,part.height);
+              if(y)pdf.addPage();
+              pdf.addImage(part.toDataURL('image/jpeg',0.95),'JPEG',10,10,width,part.height*width/part.width);
+            }
+            pdf.save(name+'.pdf');
+          }else{
+            const link=popup.document.createElement('a');
+            link.download=name+(format==='PNG'?'.png':'.jpg');
+            link.href=canvas.toDataURL(format==='PNG'?'image/png':'image/jpeg',0.95);
+            link.click();
+          }
+        }catch(e){popup.alert('Falha ao exportar. Tente novamente ou use Imprimir PDF.');}
+        finally{button.disabled=false;}
+      };
+    }
     popup.focus();
   }
 
