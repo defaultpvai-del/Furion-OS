@@ -363,14 +363,14 @@ body.light-theme .item-finance .sale b{color:var(--success)}
 <div id="loginScreen" class="login-screen">
     <div class="login-card">
         <div class="login-brand">FURION SIGN</div>
-        <p id="loginIntro">Acesse sua conta online para carregar seu perfil e clientes da nuvem.</p>
+        <p id="loginIntro">Autorize este dispositivo com seu e-mail cadastrado. Não é necessário usar senha.</p>
         <div class="login-stack" id="loginForm">
             <input id="loginEmail" class="modern-input" type="email" placeholder="E-mail" autocomplete="username">
-            <input id="loginPassword" class="modern-input" type="password" placeholder="Senha" autocomplete="current-password">
-            <button class="btn-primary btn-wide" id="loginButton" onclick="login()">ENTRAR</button>
+
+            <button class="btn-primary btn-wide" id="loginButton" onclick="login()">ENVIAR LINK DE ACESSO</button>
         </div>
         <div id="cloudStatus" class="login-note">☁️ Supabase: aguardando conexão...</div>
-        <p class="login-note">Login, perfis, clientes, catálogo, configurações e orçamentos usam o Supabase. O armazenamento local fica apenas para tema, autosave temporário e migração de versões antigas.</p>
+        <p class="login-note">Após a autorização, sua sessão será mantida neste navegador.</p>
     </div>
 </div>
 
@@ -891,33 +891,23 @@ function setCloudStatus(message, ok=null){
 function showLogin(){
     document.getElementById('loginScreen').classList.remove('hidden');
     document.getElementById('loginButton').disabled=false;
-    document.getElementById('loginButton').textContent='ENTRAR';
+    document.getElementById('loginButton').textContent='ENVIAR LINK DE ACESSO';
 }
 
 async function login(){
     const email=document.getElementById('loginEmail').value.trim().toLowerCase();
-    const password=document.getElementById('loginPassword').value;
-    if(!email || !password) return alert('Informe e-mail e senha.');
-
+    if(!email || !document.getElementById('loginEmail').checkValidity()) return alert('Informe seu e-mail cadastrado.');
     const btn=document.getElementById('loginButton');
-    btn.disabled=true;
-    btn.textContent='ENTRANDO...';
-    setCloudStatus('Autenticando...', null);
-
+    btn.disabled=true; btn.textContent='ENVIANDO...';
     try{
-        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        const {error}=await supabaseClient.auth.signInWithOtp({email,options:{shouldCreateUser:false,emailRedirectTo:location.origin+'/'}});
         if(error) throw error;
-        if(!data?.user) throw new Error('Usuário não retornado pelo Supabase.');
-
-        await authenticateSessionUser(data.user);
-        document.getElementById('loginPassword').value='';
+        setCloudStatus('Confira seu e-mail e abra o link neste dispositivo.',true);
+        alert('Confira sua caixa de entrada e spam para autorizar o dispositivo.');
     }catch(error){
-        console.error(error);
-        setCloudStatus('Não foi possível entrar.', false);
-        alert('Não foi possível entrar. Confira e-mail, senha e se o usuário está ativo.');
-        btn.disabled=false;
-        btn.textContent='ENTRAR';
-    }
+        setCloudStatus('Não foi possível enviar o link.',false);
+        alert('Não foi possível autorizar: '+error.message);
+    }finally{btn.disabled=false;btn.textContent='ENVIAR LINK DE ACESSO';}
 }
 
 async function authenticateSessionUser(authUser){
