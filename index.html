@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0d0e12">
-    <title>Furion OS</title>
+    <title>Furion Sign</title>
     <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/gk6zCNBV/FAVICON.png">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
@@ -334,13 +334,35 @@
             .app-page{max-width:840px;margin:0 auto}
             .modal-card{border-radius:22px;margin-bottom:20px}
         }
-    </style>
+    
+/* Furion Sign visual system */
+.sign-brand{margin-right:auto;font-size:19px;font-weight:900;letter-spacing:-.8px;color:var(--text)}
+.sign-brand span{background:var(--gradient);background-clip:text;-webkit-background-clip:text;color:transparent}
+body{background-image:radial-gradient(ellipse at 0% 0%,rgba(0,174,239,.13),transparent 42%),radial-gradient(ellipse at 100% 30%,rgba(236,0,140,.10),transparent 45%),radial-gradient(ellipse at 20% 100%,rgba(255,242,0,.08),transparent 42%);background-attachment:fixed}
+.app-header{backdrop-filter:blur(20px)}
+.app-page{animation:signEnter .32s ease}
+@keyframes signEnter{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+.panel,.kpi-card,.quick-action,.item-card,.recent-card,.client-card,.budget-card{border-radius:20px;box-shadow:0 8px 28px rgba(25,30,55,.06);transition:transform .2s,box-shadow .2s,border-color .2s}
+.hero-card{background:linear-gradient(125deg,rgba(0,174,239,.15),rgba(236,0,140,.10),rgba(255,242,0,.12)),var(--card)!important;border-color:var(--border)}
+.hero-title{font-size:24px;letter-spacing:-.5px}
+.home-title{font-size:clamp(28px,5vw,42px)}
+.kpi-label,.quick-action-name,.field-box label{font-size:10px}
+.modern-input,.modern-select{font-size:14px;min-height:44px}
+.btn-primary,.btn-secondary,.btn-danger,.btn-ghost{font-size:11px;min-height:44px;transition:filter .2s,transform .2s}
+.btn-primary:hover{filter:brightness(1.08)}
+button:active{transform:scale(.98)}
+body.light-theme .item-finance b{color:var(--text)}
+body.light-theme .item-finance .sale b{color:var(--success)}
+@media(hover:hover){.quick-action:hover,.kpi-card:hover{transform:translateY(-3px);border-color:var(--cyan);box-shadow:0 12px 30px rgba(0,174,239,.12)}}
+@media(min-width:850px){.home-page{max-width:1100px}.dashboard-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.quick-actions{gap:16px}.app-page{padding:28px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
 </head>
 <body>
 
 <div id="loginScreen" class="login-screen">
     <div class="login-card">
-        <div class="login-brand">FURION OS</div>
+        <div class="login-brand">FURION SIGN</div>
         <p id="loginIntro">Acesse sua conta online para carregar seu perfil e clientes da nuvem.</p>
         <div class="login-stack" id="loginForm">
             <input id="loginEmail" class="modern-input" type="email" placeholder="E-mail" autocomplete="username">
@@ -352,7 +374,7 @@
     </div>
 </div>
 
-<header class="app-header">
+<header class="app-header"><div class="sign-brand">FURION <span>SIGN</span></div>
     <button class="settings-fab hidden" id="configBtn" onclick="navTo('page-config')" aria-label="Configurações" title="Configurações">⚙️</button>
     <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Alternar tema" title="Alternar tema">☀️</button>
     <button class="user-badge" id="loggedUserBadge" onclick="openUserModal()">👤 Usuário</button>
@@ -361,8 +383,8 @@
 <main>
     <section class="app-page active home-page" id="page-home">
         <div class="home-welcome">
-            <div class="home-eyebrow">Painel Furion · v6.1 Cloud</div>
-            <div class="home-title"><span>FURION</span> OS</div>
+            <div class="home-eyebrow">Comunicação visual · Gestão inteligente</div>
+            <div class="home-title"><span>FURION</span> SIGN</div>
         </div>
 
         <div class="autosave-card" id="autosaveCard">
@@ -838,7 +860,7 @@ async function boot(){
 }
 
 function applySavedTheme(){
-    const saved = localStorage.getItem(STORAGE.THEME) || 'dark';
+    const saved = localStorage.getItem(STORAGE.THEME) || 'light';
     document.body.classList.toggle('light-theme', saved === 'light');
     updateThemeButton(saved);
 }
